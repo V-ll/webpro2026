@@ -17,7 +17,7 @@ const log = (message: string, error?: any) => {
 log("Initializing database connection...");
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter, log: ["query"] });
+const prisma = new PrismaClient({ adapter, log: ["query", "info", "warn", "error"] });
 
 const app = express();
 const PORT = process.env.PORT || 8888;
@@ -35,12 +35,21 @@ app.get("/", async (req, res) => {
     const users = await prisma.user.findMany();
     log(`GET / - Found ${users.length} users`);
     res.render("index", { users });
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+  } catch (error: any) {
+    const errorMessage = error?.message || String(error);
+    const errorMeta = error?.meta ? JSON.stringify(error.meta, null, 2) : "No meta info";
+    const errorCode = error?.code || "No code";
     const errorStack = error instanceof Error ? error.stack : "";
     log("GET / - Error occurred", error);
-    res.status(500).send(`<pre style="color: red; font-size: 14px; overflow-x: auto;">
-ERROR: ${errorMessage}
+    res.status(500).send(`<pre style="color: red; font-size: 12px; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;">
+ERROR MESSAGE:
+${errorMessage}
+
+ERROR CODE:
+${errorCode}
+
+ERROR META:
+${errorMeta}
 
 FULL ERROR:
 ${String(error)}
@@ -79,7 +88,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 const server = app.listen(PORT, () => {
-  log(`Server is running on http://localhost:${PORT}`);
+  log(`Server is running on port ${PORT}`);
+  log(`Database URL configured: ${process.env.DATABASE_URL ? "YES (configured)" : "NO (missing)"}`);
+  log(`Node environment: ${process.env.NODE_ENV || "development"}`);
 });
 
 // グレースフルシャットダウン
