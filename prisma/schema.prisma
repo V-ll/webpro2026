@@ -14,6 +14,146 @@ datasource db {
 
 model User {
   id   Int    @id @default(autoincrement())
-  name String
-  age  Int?
+  email String @unique
+  name  String
+  createdAt DateTime @default(now())
+  
+  workspaceMembers WorkspaceMember[]
+  tasks Task[]
+  taskEdits TaskEdit[]
 }
+
+model Workspace {
+  id   Int    @id @default(autoincrement())
+  name String
+  description String?
+  color String @default("#3b82f6")
+  theme String @default("dark")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  members WorkspaceMember[]
+  tasks Task[]
+  statuses Status[]
+  lists TaskList[]
+}
+
+model WorkspaceMember {
+  id   Int    @id @default(autoincrement())
+  workspaceId Int
+  userId Int
+  role String @default("member") // "owner", "member", "viewer"
+  
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([workspaceId, userId])
+}
+
+model TaskList {
+  id   Int    @id @default(autoincrement())
+  workspaceId Int
+  name String
+  order Int @default(0)
+  color String @default("#3b82f6")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tasks Task[]
+  
+  @@unique([workspaceId, name])
+}
+
+model Task {
+  id   Int    @id @default(autoincrement())
+  workspaceId Int
+  listId Int
+  createdById Int
+  
+  title String
+  description String? // Markdown content
+  status String @default("未着手") // Default status
+  priority Int @default(0) // 0-5: 0 is lowest
+  progress Int @default(0) // 0-100
+  dueDate DateTime?
+  location String?
+  tags String[] @default([])
+  
+  // Recurring task properties
+  isRecurring Boolean @default(false)
+  recurrencePattern String? // JSON: { type: "daily"|"weekly"|"monthly"|"yearly", interval: 1, daysOfWeek: [1-7], etc }
+  
+  // Soft delete
+  deletedAt DateTime?
+  
+  // Parent-child relationships
+  parentTaskIds Int[] @default([])
+  childTasks Task[] @relation("TaskChildren")
+  parentTasks Task[] @relation("TaskChildren")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  list TaskList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  createdBy User @relation(fields: [createdById], references: [id])
+  milestones Milestone[]
+  edits TaskEdit[]
+  reminders Reminder[]
+}
+
+model Milestone {
+  id   Int    @id @default(autoincrement())
+  taskId Int
+  
+  title String
+  status String @default("未着手")
+  order Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+model Status {
+  id   Int    @id @default(autoincrement())
+  workspaceId Int
+  
+  name String
+  isDefault Boolean @default(false)
+  order Int @default(0)
+  color String @default("#999999")
+  createdAt DateTime @default(now())
+  
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  
+  @@unique([workspaceId, name])
+}
+
+model TaskEdit {
+  id   Int    @id @default(autoincrement())
+  taskId Int
+  editedById Int
+  
+  content String // Full task content after edit
+  changesSummary String? // JSON summary of changes
+  timestamp DateTime @default(now())
+  
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  editedBy User @relation(fields: [editedById], references: [id])
+}
+
+model Reminder {
+  id   Int    @id @default(autoincrement())
+  taskId Int
+  
+  reminderType String // "30min"|"1hour"|"3hours"|"12hours"|"1day"|"3days"|"1week"|"custom"
+  customTime DateTime?
+  soundIntensity Int @default(1) // 1-5 based on task urgency
+  enabled Boolean @default(true)
+  createdAt DateTime @default(now())
+  
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+

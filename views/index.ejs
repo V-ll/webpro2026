@@ -2,21 +2,454 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ユーザー一覧</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager - ワークスペース</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #3d3d3d;
+      --text-primary: #ffffff;
+      --text-secondary: #b0b0b0;
+      --accent-blue: #3b82f6;
+      --accent-red: #ef4444;
+      --accent-green: #10b981;
+      --border: #444444;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* サイドバー（左端のバー） */
+    .sidebar {
+      width: 60px;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 0;
+      position: relative;
+      z-index: 100;
+    }
+
+    .sidebar-toggle {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+      color: var(--accent-blue);
+      font-size: 24px;
+    }
+
+    .sidebar-toggle:hover {
+      background-color: var(--bg-tertiary);
+    }
+
+    /* サイドパネル */
+    .side-panel {
+      width: 320px;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100vh;
+      z-index: 99;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .side-panel.open {
+      transform: translateX(60px);
+    }
+
+    .side-panel-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+      font-weight: bold;
+    }
+
+    .side-panel-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .divider {
+      width: 4px;
+      background-color: var(--accent-blue);
+      cursor: col-resize;
+      position: relative;
+    }
+
+    .divider:hover {
+      background-color: var(--accent-blue);
+      opacity: 1;
+    }
+
+    /* タスクリスト */
+    .task-list {
+      padding: 15px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .task-item {
+      padding: 12px;
+      margin-bottom: 8px;
+      background-color: var(--bg-tertiary);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+    }
+
+    .task-item:hover {
+      background-color: rgba(59, 130, 246, 0.2);
+      border-left-color: var(--accent-blue);
+    }
+
+    .task-item.active {
+      background-color: rgba(59, 130, 246, 0.3);
+      border-left-color: var(--accent-blue);
+    }
+
+    .task-item-title {
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-item-status {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* メインエリア */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-primary);
+      overflow: hidden;
+    }
+
+    .task-editor {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .task-header {
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--accent-blue);
+      padding-bottom: 20px;
+    }
+
+    .task-title {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+    }
+
+    .task-title:hover {
+      background-color: var(--bg-secondary);
+    }
+
+    .task-title-input {
+      width: 100%;
+      font-size: 32px;
+      font-weight: bold;
+      background-color: transparent;
+      color: var(--text-primary);
+      border: none;
+      border-bottom: 2px solid var(--accent-blue);
+      padding: 8px 0;
+      font-family: inherit;
+    }
+
+    .task-meta {
+      display: flex;
+      gap: 30px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .meta-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .meta-value {
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .meta-value:hover {
+      background-color: var(--bg-secondary);
+    }
+
+    /* マークダウンエディタ */
+    .markdown-editor {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .editor-pane, .preview-pane {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .editor-pane textarea {
+      flex: 1;
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 15px;
+      font-family: "Monaco", "Courier New", monospace;
+      font-size: 13px;
+      resize: none;
+    }
+
+    .preview-pane {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    /* オーバーレイ */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 98;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* スクロールバー */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-blue);
+    }
+
+    /* エラーメッセージ */
+    .error-message {
+      background-color: rgba(239, 68, 68, 0.2);
+      border-left: 4px solid var(--accent-red);
+      padding: 15px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      color: #fca5a5;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    @media (max-width: 768px) {
+      .markdown-editor {
+        grid-template-columns: 1fr;
+      }
+      
+      .side-panel {
+        width: 100%;
+      }
+
+      .task-editor {
+        padding: 20px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>ユーザー一覧</h1>
-  <ul>
-    <% users.forEach(user => { %>
-      <li><%= user.name %>（<%= user.age ? user.age + '歳' : '年齢未設定' %>）</li>
-    <% }) %>
-  </ul>
+  <div class="container">
+    <!-- サイドバー -->
+    <div class="sidebar">
+      <div class="sidebar-toggle" onclick="toggleSidePanel()">☰</div>
+    </div>
 
-  <h2>ユーザー追加</h2>
-  <form action="/users" method="post">
-    <input type="text" name="name" placeholder="名前" required>
-    <input type="number" name="age" placeholder="年齢">
-    <button type="submit">追加する</button>
-  </form>
+    <!-- オーバーレイ -->
+    <div class="overlay" id="overlay" onclick="toggleSidePanel()"></div>
+
+    <!-- サイドパネル -->
+    <div class="side-panel" id="sidePanel">
+      <div class="side-panel-header">
+        <%= workspace?.name || 'ワークスペース' %>
+      </div>
+      <div class="side-panel-content" id="sidePanelContent">
+        <% if (lists && lists.length > 0) { %>
+          <% lists.forEach((list) => { %>
+            <div class="task-list">
+              <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+                <%= list.name %>
+              </div>
+              <% const listTasks = tasks.filter(t => t.listId === list.id); %>
+              <% listTasks.forEach((task) => { %>
+                <div class="task-item" onclick="selectTask(<%= task.id %>)">
+                  <div class="task-item-title"><%= task.title %></div>
+                  <div class="task-item-status"><%= task.status %></div>
+                </div>
+              <% }); %>
+            </div>
+          <% }); %>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- メインエリア -->
+    <div class="main-area">
+      <div class="task-editor">
+        <% if (workspace && tasks && tasks.length > 0) { %>
+          <% const firstTask = tasks[0]; %>
+          <div class="task-header">
+            <h1 class="task-title" onclick="editTaskTitle(<%= firstTask.id %>)">
+              <%= firstTask.title %>
+            </h1>
+            <div class="task-meta">
+              <div class="meta-item">
+                <div class="meta-label">ステータス</div>
+                <div class="meta-value"><%= firstTask.status %></div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">優先度</div>
+                <div class="meta-value"><%= firstTask.priority %></div>
+              </div>
+              <div class="meta-item">
+                <div class="meta-label">進捗</div>
+                <div class="meta-value"><%= firstTask.progress %>%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="markdown-editor">
+            <div class="editor-pane">
+              <div class="meta-label" style="margin-bottom: 10px;">説明（マークダウン）</div>
+              <textarea id="taskDescription" placeholder="マークダウンで入力..."><%= firstTask.description || '' %></textarea>
+            </div>
+            <div class="preview-pane">
+              <div class="meta-label" style="margin-bottom: 10px;">プレビュー</div>
+              <div id="preview"></div>
+            </div>
+          </div>
+        <% } else { %>
+          <div class="error-message">
+            タスクが見つかりません。タスクを作成してください。
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidePanel() {
+      const panel = document.getElementById('sidePanel');
+      const overlay = document.getElementById('overlay');
+      panel.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+
+    function selectTask(taskId) {
+      // タスク選択時の処理
+      console.log('Task selected:', taskId);
+      // ここで別のタスクを読み込む処理を実装
+    }
+
+    function editTaskTitle(taskId) {
+      // タイトル編集モードに切り替え
+      console.log('Editing title for task:', taskId);
+    }
+
+    // マークダウンプレビュー（簡易実装）
+    document.addEventListener('DOMContentLoaded', function() {
+      const textarea = document.getElementById('taskDescription');
+      const preview = document.getElementById('preview');
+
+      if (textarea && preview) {
+        textarea.addEventListener('input', function() {
+          // 簡易的なマークダウンをHTMLに変換
+          let html = textarea.value
+            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.+?)\*/g, '<em>$1</em>')
+            .replace(/\n/g, '<br>');
+          preview.innerHTML = html;
+        });
+
+        // 初期プレビュー表示
+        textarea.dispatchEvent(new Event('input'));
+      }
+    });
+  </script>
 </body>
 </html>
