@@ -8,9 +8,10 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "start": "tsx index.js",
+    "start": "tsx index.ts",
     "build": "npm run prisma:generate",
     "prisma:generate": "prisma generate",
+    "migrate:deploy": "prisma migrate deploy",
     "postinstall": "npm run prisma:generate",
     "db:dev": "prisma dev"
   },

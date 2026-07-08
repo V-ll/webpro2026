@@ -1,0 +1,59 @@
+2026-07-08T06:46:40.900326873Z ==> Downloading cache...
+2026-07-08T06:46:40.935561762Z ==> Cloning from https://github.com/V-ll/webpro2026
+2026-07-08T06:46:41.423518758Z ==> Checking out commit c63b56812e64eecf5eaa068a3445748be8eeab6e in branch main
+2026-07-08T06:46:46.850672082Z ==> Downloaded 277MB in 2s. Extraction took 4s.
+2026-07-08T06:46:53.076389243Z ==> Requesting Node.js version >=24.0.0
+2026-07-08T06:46:53.187361362Z ==> Using Node.js version 26.4.0 via /opt/render/project/src/package.json
+2026-07-08T06:46:53.187382782Z ==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+2026-07-08T06:46:53.187551265Z ==> Installing Node.js version 26.4.0...
+2026-07-08T06:46:54.297682902Z ==> Running build command 'npm run build'...
+2026-07-08T06:46:54.411024101Z 
+2026-07-08T06:46:54.411039691Z > my-app@1.0.0 build
+2026-07-08T06:46:54.411043541Z > npm run prisma:generate
+2026-07-08T06:46:54.411048041Z 
+2026-07-08T06:46:54.530184679Z 
+2026-07-08T06:46:54.53020408Z > my-app@1.0.0 prisma:generate
+2026-07-08T06:46:54.530207529Z > prisma generate
+2026-07-08T06:46:54.53020968Z 
+2026-07-08T06:46:55.23348756Z Loaded Prisma config from prisma.config.ts.
+2026-07-08T06:46:55.233501541Z 
+2026-07-08T06:46:55.358725332Z Prisma schema loaded from prisma/schema.prisma.
+2026-07-08T06:46:55.409740511Z 
+2026-07-08T06:46:55.409766751Z ✔ Generated Prisma Client (7.8.0) to ./generated/prisma in 26ms
+2026-07-08T06:46:55.409770871Z 
+2026-07-08T06:46:56.993924128Z ==> Uploading build...
+2026-07-08T06:47:04.151957604Z ==> Uploaded in 4.3s. Compression took 2.8s
+2026-07-08T06:47:04.198365814Z ==> Build successful 🎉
+2026-07-08T06:47:13.19367175Z ==> Deploying...
+2026-07-08T06:47:13.324071328Z ==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+2026-07-08T06:47:28.559879075Z ==> Running 'npm run start'
+2026-07-08T06:47:29.662098583Z 
+2026-07-08T06:47:29.662127635Z > my-app@1.0.0 start
+2026-07-08T06:47:29.662131875Z > tsx index.js
+2026-07-08T06:47:29.662134975Z 
+2026-07-08T06:47:31.364863723Z node:internal/modules/package_json_reader:301
+2026-07-08T06:47:31.364885455Z   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+2026-07-08T06:47:31.364888925Z         ^
+2026-07-08T06:47:31.364892275Z 
+2026-07-08T06:47:31.364896305Z Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'pg' imported from /opt/render/project/src/index.ts
+2026-07-08T06:47:31.364902065Z     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+2026-07-08T06:47:31.364905656Z     at packageResolve (node:internal/modules/esm/resolve:784:25)
+2026-07-08T06:47:31.364908946Z     at moduleResolve (node:internal/modules/esm/resolve:873:18)
+2026-07-08T06:47:31.364911946Z     at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+2026-07-08T06:47:31.364915006Z     at #cachedDefaultResolve (node:internal/modules/esm/loader:704:20)
+2026-07-08T06:47:31.364918257Z     at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:724:38)
+2026-07-08T06:47:31.364921337Z     at nextStep (node:internal/modules/customization_hooks:189:26)
+2026-07-08T06:47:31.364924107Z     at resolveBaseSync (file:///opt/render/project/src/node_modules/tsx/dist/register-CqMfTiWi.mjs:2:8745)
+2026-07-08T06:47:31.364927667Z     at resolveDirectorySync (file:///opt/render/project/src/node_modules/tsx/dist/register-CqMfTiWi.mjs:2:9958)
+2026-07-08T06:47:31.364930697Z     at resolveTsPathsSync (file:///opt/render/project/src/node_modules/tsx/dist/register-CqMfTiWi.mjs:2:11190) {
+2026-07-08T06:47:31.364934037Z   code: 'ERR_MODULE_NOT_FOUND'
+2026-07-08T06:47:31.364936878Z }
+2026-07-08T06:47:31.364939898Z 
+2026-07-08T06:47:31.364942668Z Node.js v26.4.0
+2026-07-08T06:47:36.065643929Z ==> Exited with status 1
+2026-07-08T06:47:36.068641025Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2026-07-08T06:47:40.313366947Z ==> Running 'npm run start'
+2026-07-08T06:47:41.313876279Z 
+2026-07-08T06:47:41.3138975Z > my-app@1.0.0 start
+2026-07-08T06:47:41.31390151Z > tsx index.js
+2026-07-08T06:47:41.313904121Z 
