@@ -36,8 +36,18 @@ app.get("/", async (req, res) => {
     log(`GET / - Found ${users.length} users`);
     res.render("index", { users });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : "";
     log("GET / - Error occurred", error);
-    res.status(500).send(`<pre>Error: ${error instanceof Error ? error.message : String(error)}</pre>`);
+    res.status(500).send(`<pre style="color: red; font-size: 14px; overflow-x: auto;">
+ERROR: ${errorMessage}
+
+FULL ERROR:
+${String(error)}
+
+STACK:
+${errorStack}
+    </pre>`);
   }
 });
 
