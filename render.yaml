@@ -3,7 +3,7 @@ services:
     name: webpro2026
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: npm install
     startCommand: npm run start
     envVars:
       - key: DATABASE_URL

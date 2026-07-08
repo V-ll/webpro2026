@@ -11,6 +11,7 @@
     "start": "tsx index.js",
     "build": "npm run prisma:generate",
     "prisma:generate": "prisma generate",
+    "postinstall": "npm run prisma:generate",
     "db:dev": "prisma dev"
   },
   "keywords": [],
