@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -18,7 +19,8 @@ const log = (message: string, error?: any) => {
 
 // データベース接続の準備
 log("Initializing database connection...");
-const prisma = new PrismaClient({ log: ["query", "info", "warn", "error"] });
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const prisma = new PrismaClient({ adapter, log: ["query", "info", "warn", "error"] });
 
 const app = express();
 const PORT = process.env.PORT || 8888;
