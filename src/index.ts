@@ -1,9 +1,11 @@
 import "dotenv/config";
 import express from "express";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client.js";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ロギング関数
 const log = (message: string, error?: any) => {
@@ -16,9 +18,7 @@ const log = (message: string, error?: any) => {
 
 // データベース接続の準備
 log("Initializing database connection...");
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter, log: ["query", "info", "warn", "error"] });
+const prisma = new PrismaClient({ log: ["query", "info", "warn", "error"] });
 
 const app = express();
 const PORT = process.env.PORT || 8888;
@@ -32,11 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// グローバルエラーハンドラー
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  log("Global error handler triggered", err);
-  res.status(500).send(`<pre>Internal Server Error: ${err.message || String(err)}</pre>`);
-});
+
 
 // ルート：トップページ（ダッシュボード）
 app.get("/", async (req, res) => {
@@ -61,7 +57,8 @@ app.get("/", async (req, res) => {
     });
 
     if (!workspace) {
-      return res.render("index", { workspace: null, lists: [], tasks: [] });
+      res.render("index", { workspace: null, lists: [], tasks: [] });
+      return;
     }
 
     res.render("index", { 
@@ -189,6 +186,12 @@ app.delete("/api/tasks/:taskId", async (req, res) => {
     log("DELETE /api/tasks - Error", error);
     res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
   }
+});
+
+// グローバルエラーハンドラー（ルート定義の後に配置する必要がある）
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  log("Global error handler triggered", err);
+  res.status(500).send(`<pre>Internal Server Error: ${err.message || String(err)}</pre>`);
 });
 
 const server = app.listen(PORT, () => {
