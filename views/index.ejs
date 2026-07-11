@@ -355,6 +355,191 @@
       color: var(--text-1);
     }
     .meta-chip-value:hover { background: var(--bg-3); }
+    .meta-chip-value.active { background: var(--bg-4); outline: 2px solid var(--accent); }
+
+    /* ────── Meta Popup ────── */
+    .meta-popup-anchor { position: relative; }
+    .meta-popup {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 220px;
+      background: var(--bg-2);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.55);
+      z-index: 300;
+      overflow: hidden;
+      animation: popupIn 0.12s ease;
+    }
+    @keyframes popupIn {
+      from { opacity:0; transform:translateY(-4px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .meta-popup-header {
+      padding: 10px 13px 6px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    /* Status popup */
+    .status-add-row {
+      display: flex;
+      gap: 6px;
+      padding: 8px 10px 6px;
+      border-bottom: 1px solid var(--border);
+    }
+    .status-add-input {
+      flex: 1;
+      background: var(--bg-3);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      color: var(--text-0);
+      padding: 5px 9px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+    }
+    .status-add-input:focus { border-color: var(--accent); }
+    .status-add-btn {
+      padding: 5px 10px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-add-btn:hover { background: var(--accent-hover); }
+    .status-option {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 13px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.1s;
+    }
+    .status-option:hover { background: var(--bg-3); }
+    .status-option.selected { background: var(--accent-dim); }
+    .status-option-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    /* Priority popup */
+    .priority-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      padding: 12px;
+    }
+    .priority-btn {
+      aspect-ratio: 1;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      transition: transform 0.1s, box-shadow 0.1s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .priority-btn:hover { transform: scale(1.08); }
+    .priority-btn.selected { box-shadow: 0 0 0 2px #fff; }
+    /* Progress popup */
+    .progress-body { padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 12px; }
+    .progress-number-row { display: flex; align-items: center; gap: 8px; }
+    .progress-num-input {
+      width: 64px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      color: var(--text-0);
+      padding: 5px 9px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      text-align: right;
+      outline: none;
+    }
+    .progress-num-input:focus { border-color: var(--accent); }
+    .progress-slider {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+      height: 4px;
+    }
+    .progress-bar-track {
+      height: 6px;
+      background: var(--bg-4);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 3px;
+      transition: width 0.1s;
+    }
+    .progress-save-btn {
+      align-self: flex-end;
+      padding: 6px 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .progress-save-btn:hover { background: var(--accent-hover); }
+    /* DueDate popup */
+    .duedate-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .duedate-input {
+      background: var(--bg-3);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      color: var(--text-0);
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+      color-scheme: dark;
+    }
+    .duedate-input:focus { border-color: var(--accent); }
+    .duedate-btns { display: flex; gap: 7px; justify-content: flex-end; }
+    .duedate-clear-btn {
+      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      color: var(--text-2);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+    }
+    .duedate-clear-btn:hover { background: var(--bg-3); color: var(--red); border-color: var(--red); }
+    .duedate-save-btn {
+      padding: 6px 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .duedate-save-btn:hover { background: var(--accent-hover); }
 
     /* Markdown editor */
     .md-area {
@@ -596,17 +781,35 @@
           <input class="task-title-input" id="taskTitleInput" style="display:none"
                  onblur="commitTitle()" onkeydown="if(event.key==='Enter')commitTitle()">
           <div class="task-meta-row">
-            <div class="meta-chip">
+            <div class="meta-chip meta-popup-anchor" id="chip-status">
               <span class="meta-chip-label">ステータス</span>
-              <span class="meta-chip-value" id="taskStatus"><%= tasks[0].status %></span>
+              <span class="meta-chip-value" id="taskStatus"
+                    onclick="openStatusPopup()" aria-haspopup="true">
+                <span class="status-badge status-<%= tasks[0].status %>"><%= tasks[0].status %></span>
+              </span>
             </div>
-            <div class="meta-chip">
+            <div class="meta-chip meta-popup-anchor" id="chip-priority">
               <span class="meta-chip-label">優先度</span>
-              <span class="meta-chip-value" id="taskPriority"><%= tasks[0].priority %></span>
+              <span class="meta-chip-value" id="taskPriority"
+                    onclick="openPriorityPopup()" aria-haspopup="true">
+                <%= tasks[0].priority %>
+              </span>
             </div>
-            <div class="meta-chip">
+            <div class="meta-chip meta-popup-anchor" id="chip-progress">
               <span class="meta-chip-label">進捗</span>
-              <span class="meta-chip-value" id="taskProgress"><%= tasks[0].progress %>%</span>
+              <span class="meta-chip-value" id="taskProgress"
+                    onclick="openProgressPopup()" aria-haspopup="true">
+                <%= tasks[0].progress %>%
+              </span>
+            </div>
+            <div class="meta-chip meta-popup-anchor" id="chip-duedate">
+              <span class="meta-chip-label">期限</span>
+              <span class="meta-chip-value" id="taskDueDate"
+                    onclick="openDueDatePopup()" aria-haspopup="true">
+                <% if (tasks[0].dueDate) { %>
+                  <%= new Date(tasks[0].dueDate).toLocaleDateString('ja-JP', {month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'}) %>
+                <% } else { %>未設定<% } %>
+              </span>
             </div>
           </div>
         </div>
@@ -694,6 +897,54 @@
   </div>
 </div>
 
+<!-- ── Meta Popups ── -->
+<!-- Status Popup -->
+<div class="meta-popup" id="popup-status" style="display:none" role="dialog" aria-label="ステータス選択">
+  <div class="meta-popup-header">ステータス</div>
+  <div class="status-add-row">
+    <input class="status-add-input" id="statusAddInput" type="text" placeholder="新しいステータスを追加..."
+           onkeydown="if(event.key==='Enter')addCustomStatus()">
+    <button class="status-add-btn" onclick="addCustomStatus()">追加</button>
+  </div>
+  <div id="statusOptionList"></div>
+</div>
+
+<!-- Priority Popup -->
+<div class="meta-popup" id="popup-priority" style="display:none" role="dialog" aria-label="優先度選択">
+  <div class="meta-popup-header">優先度 (0 = 最低 / 5 = 最高)</div>
+  <div class="priority-grid" id="priorityGrid"></div>
+</div>
+
+<!-- Progress Popup -->
+<div class="meta-popup" id="popup-progress" style="display:none" role="dialog" aria-label="進捗入力">
+  <div class="meta-popup-header">進捗</div>
+  <div class="progress-body">
+    <div class="progress-number-row">
+      <input class="progress-num-input" id="progressNumInput" type="number" min="0" max="100" value="0"
+             oninput="syncProgressSlider()">
+      <span style="font-size:14px;color:var(--text-2)">%</span>
+    </div>
+    <input class="progress-slider" id="progressSlider" type="range" min="0" max="100" value="0"
+           oninput="syncProgressNum()">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+    </div>
+    <button class="progress-save-btn" onclick="saveProgress()">保存</button>
+  </div>
+</div>
+
+<!-- DueDate Popup -->
+<div class="meta-popup" id="popup-duedate" style="display:none" role="dialog" aria-label="期限設定">
+  <div class="meta-popup-header">期限</div>
+  <div class="duedate-body">
+    <input class="duedate-input" id="dueDateInput" type="datetime-local">
+    <div class="duedate-btns">
+      <button class="duedate-clear-btn" onclick="clearDueDate()">クリア</button>
+      <button class="duedate-save-btn" onclick="saveDueDate()">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Toast ── -->
 <div class="toast" id="toast"></div>
 
@@ -746,23 +997,27 @@
           <input class="task-title-input" id="taskTitleInput" style="display:none"
                  onblur="commitTitle()" onkeydown="if(event.key==='Enter')commitTitle()">
           <div class="task-meta-row">
-            <div class="meta-chip">
+            <div class="meta-chip meta-popup-anchor" id="chip-status">
               <span class="meta-chip-label">ステータス</span>
-              <span class="meta-chip-value" id="taskStatus">
+              <span class="meta-chip-value" id="taskStatus"
+                    onclick="openStatusPopup()" aria-haspopup="true">
                 <span class="status-badge ${statusClass}">${escHtml(task.status)}</span>
               </span>
             </div>
-            <div class="meta-chip">
+            <div class="meta-chip meta-popup-anchor" id="chip-priority">
               <span class="meta-chip-label">優先度</span>
-              <span class="meta-chip-value" id="taskPriority">${task.priority}</span>
+              <span class="meta-chip-value" id="taskPriority"
+                    onclick="openPriorityPopup()" aria-haspopup="true">${task.priority}</span>
             </div>
-            <div class="meta-chip">
+            <div class="meta-chip meta-popup-anchor" id="chip-progress">
               <span class="meta-chip-label">進捗</span>
-              <span class="meta-chip-value" id="taskProgress">${task.progress}%</span>
+              <span class="meta-chip-value" id="taskProgress"
+                    onclick="openProgressPopup()" aria-haspopup="true">${task.progress}%</span>
             </div>
-            <div class="meta-chip">
+            <div class="meta-chip meta-popup-anchor" id="chip-duedate">
               <span class="meta-chip-label">期限</span>
-              <span class="meta-chip-value">${dueDateStr}</span>
+              <span class="meta-chip-value" id="taskDueDate"
+                    onclick="openDueDatePopup()" aria-haspopup="true">${dueDateStr}</span>
             </div>
           </div>
         </div>
@@ -984,6 +1239,247 @@
     } catch(e) {
       showToast(e.message, 'error');
     }
+  }
+
+  // ===== Meta Popup Engine =====
+  const POPUP_IDS = ['popup-status','popup-priority','popup-progress','popup-duedate'];
+  let _activePopup = null;
+
+  function openPopup(id, anchorId) {
+    closeAllPopups();
+    const popup = document.getElementById(id);
+    const anchor = document.getElementById(anchorId);
+    if (!popup || !anchor) return;
+    // Position: attach popup inside anchor (which has position:relative)
+    anchor.appendChild(popup);
+    popup.style.display = '';
+    _activePopup = id;
+    anchor.querySelector('.meta-chip-value').classList.add('active');
+  }
+
+  function closeAllPopups() {
+    POPUP_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    document.querySelectorAll('.meta-chip-value.active').forEach(el => el.classList.remove('active'));
+    _activePopup = null;
+  }
+
+  // Close popup on outside click
+  document.addEventListener('click', e => {
+    if (!_activePopup) return;
+    const popup = document.getElementById(_activePopup);
+    const anchors = document.querySelectorAll('.meta-popup-anchor');
+    let inside = false;
+    anchors.forEach(a => { if (a.contains(e.target)) inside = true; });
+    if (!inside) closeAllPopups();
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); });
+
+  // ── Status Popup ──
+  const STATUS_COLORS = {
+    '未着手': '#7a7a8e', '着手中': '#5b7cf7', '凍結': '#f5a623', '完了': '#3ecf8e'
+  };
+  let _customStatuses = [];
+
+  function openStatusPopup() {
+    renderStatusOptions();
+    openPopup('popup-status', 'chip-status');
+    setTimeout(() => document.getElementById('statusAddInput')?.focus(), 60);
+  }
+
+  function renderStatusOptions() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    const current = task?.status || '未着手';
+    const allStatuses = [...Object.keys(STATUS_COLORS), ..._customStatuses];
+    const list = document.getElementById('statusOptionList');
+    if (!list) return;
+    list.innerHTML = allStatuses.map(s => {
+      const color = STATUS_COLORS[s] || '#b8b8c8';
+      const sel = s === current ? 'selected' : '';
+      return `<div class="status-option ${sel}" onclick="selectStatus('${escHtml(s)}')">
+        <span class="status-option-dot" style="background:${color}"></span>
+        <span>${escHtml(s)}</span>
+        ${s === current ? '<span style="margin-left:auto;font-size:11px;color:var(--accent)">✓</span>' : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function addCustomStatus() {
+    const input = document.getElementById('statusAddInput');
+    const val = input?.value.trim();
+    if (!val) return;
+    if (!_customStatuses.includes(val) && !STATUS_COLORS[val]) {
+      STATUS_COLORS[val] = '#b8b8c8';
+      _customStatuses.push(val);
+    }
+    input.value = '';
+    selectStatus(val);
+  }
+
+  async function selectStatus(status) {
+    if (!STATE.currentTaskId) return;
+    try {
+      const resp = await fetch(`/api/tasks/${STATE.currentTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      if (!resp.ok) throw new Error();
+      // Update state
+      const t = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+      if (t) t.status = status;
+      // Update chip
+      const chip = document.getElementById('taskStatus');
+      if (chip) chip.innerHTML = `<span class="status-badge status-${escHtml(status)}">${escHtml(status)}</span>`;
+      // Update sidebar badge
+      const item = document.getElementById('task-item-' + STATE.currentTaskId);
+      if (item) {
+        const badge = item.querySelector('.status-badge');
+        if (badge) { badge.textContent = status; badge.className = `status-badge status-${status}`; }
+      }
+      closeAllPopups();
+      showToast('ステータスを更新しました', 'success');
+    } catch { showToast('更新に失敗しました', 'error'); }
+  }
+
+  // ── Priority Popup ──
+  const PRIORITY_COLORS = [
+    '#4b4b5e','#3b6ea0','#2e86c1','#d4ac0d','#e67e22','#e74c3c'
+  ];
+  const PRIORITY_LABELS = ['最低','','','中','','最高'];
+
+  function openPriorityPopup() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    const current = task?.priority ?? 0;
+    const grid = document.getElementById('priorityGrid');
+    if (grid) {
+      grid.innerHTML = [0,1,2,3,4,5].map(p => {
+        const sel = p === current ? 'selected' : '';
+        return `<button class="priority-btn ${sel}" style="background:${PRIORITY_COLORS[p]};color:#fff"
+          onclick="selectPriority(${p})" title="${p} ${PRIORITY_LABELS[p]}">${p}</button>`;
+      }).join('');
+    }
+    openPopup('popup-priority', 'chip-priority');
+  }
+
+  async function selectPriority(priority) {
+    if (!STATE.currentTaskId) return;
+    try {
+      const resp = await fetch(`/api/tasks/${STATE.currentTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priority })
+      });
+      if (!resp.ok) throw new Error();
+      const t = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+      if (t) t.priority = priority;
+      const chip = document.getElementById('taskPriority');
+      if (chip) chip.textContent = priority;
+      closeAllPopups();
+      showToast('優先度を更新しました', 'success');
+    } catch { showToast('更新に失敗しました', 'error'); }
+  }
+
+  // ── Progress Popup ──
+  function openProgressPopup() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    const val = task?.progress ?? 0;
+    const numInput = document.getElementById('progressNumInput');
+    const slider = document.getElementById('progressSlider');
+    const fill = document.getElementById('progressBarFill');
+    if (numInput) numInput.value = val;
+    if (slider) slider.value = val;
+    if (fill) fill.style.width = val + '%';
+    openPopup('popup-progress', 'chip-progress');
+    setTimeout(() => numInput?.focus(), 60);
+  }
+
+  function syncProgressSlider() {
+    const numInput = document.getElementById('progressNumInput');
+    const slider = document.getElementById('progressSlider');
+    const fill = document.getElementById('progressBarFill');
+    let val = Math.min(100, Math.max(0, parseInt(numInput?.value) || 0));
+    if (slider) slider.value = val;
+    if (fill) fill.style.width = val + '%';
+  }
+
+  function syncProgressNum() {
+    const slider = document.getElementById('progressSlider');
+    const numInput = document.getElementById('progressNumInput');
+    const fill = document.getElementById('progressBarFill');
+    const val = parseInt(slider?.value) || 0;
+    if (numInput) numInput.value = val;
+    if (fill) fill.style.width = val + '%';
+  }
+
+  async function saveProgress() {
+    const val = Math.min(100, Math.max(0, parseInt(document.getElementById('progressNumInput')?.value) || 0));
+    if (!STATE.currentTaskId) return;
+    try {
+      const resp = await fetch(`/api/tasks/${STATE.currentTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ progress: val })
+      });
+      if (!resp.ok) throw new Error();
+      const t = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+      if (t) t.progress = val;
+      const chip = document.getElementById('taskProgress');
+      if (chip) chip.textContent = val + '%';
+      closeAllPopups();
+      showToast('進捗を更新しました', 'success');
+    } catch { showToast('更新に失敗しました', 'error'); }
+  }
+
+  // ── DueDate Popup ──
+  function openDueDatePopup() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    const input = document.getElementById('dueDateInput');
+    if (input && task?.dueDate) {
+      // datetime-local wants "YYYY-MM-DDTHH:mm"
+      const d = new Date(task.dueDate);
+      const pad = n => String(n).padStart(2,'0');
+      input.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    } else if (input) {
+      input.value = '';
+    }
+    openPopup('popup-duedate', 'chip-duedate');
+  }
+
+  async function saveDueDate() {
+    const val = document.getElementById('dueDateInput')?.value || null;
+    await patchDueDate(val);
+  }
+
+  async function clearDueDate() {
+    await patchDueDate(null);
+  }
+
+  async function patchDueDate(val) {
+    if (!STATE.currentTaskId) return;
+    try {
+      const resp = await fetch(`/api/tasks/${STATE.currentTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dueDate: val || null })
+      });
+      if (!resp.ok) throw new Error();
+      const t = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+      if (t) t.dueDate = val ? new Date(val) : null;
+      const chip = document.getElementById('taskDueDate');
+      if (chip) {
+        if (val) {
+          const d = new Date(val);
+          chip.textContent = d.toLocaleDateString('ja-JP', {month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        } else {
+          chip.textContent = '未設定';
+        }
+      }
+      closeAllPopups();
+      showToast(val ? '期限を設定しました' : '期限をクリアしました', 'success');
+    } catch { showToast('更新に失敗しました', 'error'); }
   }
 
   // ===== Toast =====

@@ -212,7 +212,7 @@ app.post("/api/workspaces/:workspaceId/tasks", async (req, res) => {
 app.put("/api/tasks/:taskId", async (req, res) => {
   try {
     const { taskId } = req.params;
-    const { title, status, progress, description } = req.body;
+    const { title, status, progress, description, priority, dueDate } = req.body;
     log(`PUT /api/tasks/${taskId} - Updating`);
 
     const task = await prisma.task.update({
@@ -220,8 +220,10 @@ app.put("/api/tasks/:taskId", async (req, res) => {
       data: {
         ...(title && { title }),
         ...(status && { status }),
-        ...(progress !== undefined && { progress }),
-        ...(description && { description })
+        ...(progress !== undefined && { progress: parseInt(progress) }),
+        ...(description !== undefined && { description }),
+        ...(priority !== undefined && { priority: parseInt(priority) }),
+        ...("dueDate" in req.body && { dueDate: dueDate ? new Date(dueDate) : null }),
       },
       include: { milestones: true }
     });
@@ -232,6 +234,7 @@ app.put("/api/tasks/:taskId", async (req, res) => {
     res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
   }
 });
+
 
 // ルート：API - タスク削除（ソフトデリート）
 app.delete("/api/tasks/:taskId", async (req, res) => {
