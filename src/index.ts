@@ -96,6 +96,68 @@ app.get("/api/workspaces", async (req, res) => {
   }
 });
 
+// ルート：API - 初期データ自動生成（ワークスペース・リスト・ユーザーが存在しない場合）
+app.post("/api/init", async (req, res) => {
+  try {
+    log("POST /api/init - Initializing default data");
+
+    // デフォルトユーザーを取得または作成
+    let user = await prisma.user.findFirst();
+    if (!user) {
+      user = await prisma.user.create({
+        data: { email: "default@example.com", name: "ユーザー" }
+      });
+      log(`Created default user: ${user.id}`);
+    }
+
+    // デフォルトワークスペースを取得または作成
+    let workspace = await prisma.workspace.findFirst();
+    if (!workspace) {
+      workspace = await prisma.workspace.create({
+        data: { name: "マイワークスペース", description: "デフォルトワークスペース" }
+      });
+      log(`Created default workspace: ${workspace.id}`);
+
+      // メンバーとして追加
+      await prisma.workspaceMember.create({
+        data: { workspaceId: workspace.id, userId: user.id, role: "owner" }
+      });
+    }
+
+    // デフォルトリストを取得または作成
+    let list = await prisma.taskList.findFirst({ where: { workspaceId: workspace.id } });
+    if (!list) {
+      list = await prisma.taskList.create({
+        data: { workspaceId: workspace.id, name: "タスク", color: "#3b82f6" }
+      });
+      log(`Created default list: ${list.id}`);
+    }
+
+    res.json({ workspace, list, user });
+  } catch (error) {
+    log("POST /api/init - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+// ルート：API - リスト一覧取得
+app.get("/api/workspaces/:workspaceId/lists", async (req, res) => {
+  try {
+    const { workspaceId } = req.params;
+    log(`GET /api/workspaces/${workspaceId}/lists`);
+    const lists = await prisma.taskList.findMany({
+      where: { workspaceId: parseInt(workspaceId) },
+      orderBy: { order: "asc" }
+    });
+    res.json(lists);
+  } catch (error) {
+    log("GET /api/lists - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+
+
 // ルート：API - タスク一覧取得
 app.get("/api/workspaces/:workspaceId/tasks", async (req, res) => {
   try {

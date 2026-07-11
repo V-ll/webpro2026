@@ -3,453 +3,1014 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Manager - ワークスペース</title>
+  <title>Task Manager<% if (workspace) { %> - <%= workspace.name %><% } %></title>
+  <meta name="description" content="軽量・高速なタスク管理ツール。マイルストーン・ワークスペース・リマインダー対応。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg-primary: #1a1a1a;
-      --bg-secondary: #2d2d2d;
-      --bg-tertiary: #3d3d3d;
-      --text-primary: #ffffff;
-      --text-secondary: #b0b0b0;
-      --accent-blue: #3b82f6;
-      --accent-red: #ef4444;
-      --accent-green: #10b981;
-      --border: #444444;
+      --bg-0: #111114;
+      --bg-1: #1a1a1f;
+      --bg-2: #242429;
+      --bg-3: #2e2e35;
+      --bg-4: #3a3a42;
+      --text-0: #f0f0f4;
+      --text-1: #b8b8c8;
+      --text-2: #7a7a8e;
+      --accent: #5b7cf7;
+      --accent-dim: rgba(91,124,247,0.18);
+      --accent-hover: #7090ff;
+      --green: #3ecf8e;
+      --yellow: #f5a623;
+      --red: #ef5350;
+      --border: rgba(255,255,255,0.07);
+      --border-light: rgba(255,255,255,0.12);
+      --radius: 8px;
+      --sidebar-w: 56px;
+      --panel-w: 300px;
+      --transition: 0.18s ease;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: var(--bg-primary);
-      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-0);
+      color: var(--text-0);
       height: 100vh;
       overflow: hidden;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
-    .container {
+    /* ────── Layout ────── */
+    .layout {
       display: flex;
       height: 100vh;
     }
 
-    /* サイドバー（左端のバー） */
+    /* ────── Sidebar (narrow icon bar) ────── */
     .sidebar {
-      width: 60px;
-      background-color: var(--bg-secondary);
+      width: var(--sidebar-w);
+      background: var(--bg-1);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px 0;
-      position: relative;
-      z-index: 100;
+      padding: 14px 0;
+      gap: 6px;
+      z-index: 200;
+      flex-shrink: 0;
     }
 
-    .sidebar-toggle {
-      width: 40px;
-      height: 40px;
+    .sidebar-btn {
+      width: 38px;
+      height: 38px;
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      border-radius: var(--radius);
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      border-radius: 8px;
-      transition: background-color 0.2s;
-      color: var(--accent-blue);
-      font-size: 24px;
+      font-size: 18px;
+      transition: background var(--transition), color var(--transition);
     }
-
-    .sidebar-toggle:hover {
-      background-color: var(--bg-tertiary);
+    .sidebar-btn:hover, .sidebar-btn.active {
+      background: var(--bg-3);
+      color: var(--text-0);
     }
+    .sidebar-btn.accent { color: var(--accent); }
+    .sidebar-btn.accent:hover { background: var(--accent-dim); color: var(--accent-hover); }
 
-    /* サイドパネル */
+    /* ────── Side Panel ────── */
     .side-panel {
-      width: 320px;
-      background-color: var(--bg-secondary);
+      width: var(--panel-w);
+      background: var(--bg-1);
       border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
       position: absolute;
-      left: 0;
+      left: var(--sidebar-w);
       top: 0;
       height: 100vh;
-      z-index: 99;
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
+      z-index: 150;
+      transform: translateX(calc(-100% - var(--sidebar-w)));
+      transition: transform var(--transition);
+      overflow: hidden;
     }
-
     .side-panel.open {
-      transform: translateX(60px);
+      transform: translateX(0);
     }
 
-    .side-panel-header {
-      padding: 20px;
+    .panel-header {
+      padding: 16px 16px 12px;
       border-bottom: 1px solid var(--border);
-      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
     }
+    .panel-workspace-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-0);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .panel-close {
+      width: 26px;
+      height: 26px;
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background var(--transition);
+    }
+    .panel-close:hover { background: var(--bg-3); color: var(--text-0); }
 
-    .side-panel-content {
+    /* New task button in panel */
+    .new-task-btn {
+      margin: 12px 12px 8px;
+      padding: 9px 14px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: background var(--transition), transform 0.1s;
+    }
+    .new-task-btn:hover { background: var(--accent-hover); }
+    .new-task-btn:active { transform: scale(0.97); }
+
+    /* Panel sections */
+    .panel-body {
       flex: 1;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
     }
 
-    .divider {
-      width: 4px;
-      background-color: var(--accent-blue);
-      cursor: col-resize;
-      position: relative;
-    }
-
-    .divider:hover {
-      background-color: var(--accent-blue);
-      opacity: 1;
-    }
-
-    /* タスクリスト */
-    .task-list {
-      padding: 15px;
+    .list-section {
       border-bottom: 1px solid var(--border);
+    }
+    .list-label {
+      padding: 10px 14px 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .list-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
 
     .task-item {
-      padding: 12px;
-      margin-bottom: 8px;
-      background-color: var(--bg-tertiary);
-      border-radius: 6px;
+      padding: 9px 14px;
       cursor: pointer;
-      transition: all 0.2s;
-      border-left: 4px solid transparent;
+      border-left: 3px solid transparent;
+      transition: background var(--transition), border-color var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
     }
-
-    .task-item:hover {
-      background-color: rgba(59, 130, 246, 0.2);
-      border-left-color: var(--accent-blue);
-    }
-
+    .task-item:hover { background: var(--bg-3); }
     .task-item.active {
-      background-color: rgba(59, 130, 246, 0.3);
-      border-left-color: var(--accent-blue);
+      background: var(--accent-dim);
+      border-left-color: var(--accent);
     }
-
     .task-item-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
-      white-space: nowrap;
+      color: var(--text-0);
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
-
-    .task-item-status {
+    .task-item-meta {
       font-size: 11px;
-      color: var(--text-secondary);
-      margin-top: 4px;
+      color: var(--text-2);
+      display: flex;
+      gap: 8px;
     }
 
-    /* メインエリア */
+    .status-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+    .status-未着手  { background: rgba(122,122,142,0.2); color: var(--text-2); }
+    .status-着手中  { background: rgba(91,124,247,0.2); color: var(--accent); }
+    .status-凍結   { background: rgba(245,166,35,0.2); color: var(--yellow); }
+    .status-完了   { background: rgba(62,207,142,0.2); color: var(--green); }
+
+    /* Empty state in panel */
+    .panel-empty {
+      padding: 24px 16px;
+      color: var(--text-2);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    /* ────── Overlay ────── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 140;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition);
+    }
+    .overlay.active { opacity: 1; pointer-events: all; }
+
+    /* ────── Main Area ────── */
     .main-area {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background-color: var(--bg-primary);
       overflow: hidden;
+      min-width: 0;
     }
 
+    /* Empty state (no tasks) */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: var(--text-2);
+    }
+    .empty-state-icon { font-size: 52px; opacity: 0.35; }
+    .empty-state h2 { font-size: 20px; font-weight: 600; color: var(--text-1); }
+    .empty-state p { font-size: 13px; line-height: 1.7; text-align: center; max-width: 320px; }
+    .empty-state-btn {
+      margin-top: 8px;
+      padding: 10px 22px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background var(--transition);
+    }
+    .empty-state-btn:hover { background: var(--accent-hover); }
+
+    /* Task editor */
     .task-editor {
       flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 30px;
-      overflow-y: auto;
+      overflow: hidden;
     }
 
-    .task-header {
-      margin-bottom: 30px;
-      border-bottom: 2px solid var(--accent-blue);
-      padding-bottom: 20px;
+    .task-top-bar {
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
-    .task-title {
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 10px;
+    .task-title-display {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-0);
       cursor: pointer;
-      padding: 8px 12px;
+      padding: 4px 8px;
       border-radius: 6px;
-      transition: background-color 0.2s;
+      margin: -4px -8px 0;
+      word-break: break-word;
     }
-
-    .task-title:hover {
-      background-color: var(--bg-secondary);
-    }
-
+    .task-title-display:hover { background: var(--bg-2); }
     .task-title-input {
       width: 100%;
-      font-size: 32px;
-      font-weight: bold;
-      background-color: transparent;
-      color: var(--text-primary);
+      font-size: 26px;
+      font-weight: 700;
+      background: transparent;
+      color: var(--text-0);
       border: none;
-      border-bottom: 2px solid var(--accent-blue);
-      padding: 8px 0;
+      border-bottom: 2px solid var(--accent);
+      padding: 4px 0;
       font-family: inherit;
+      outline: none;
     }
 
-    .task-meta {
+    .task-meta-row {
       display: flex;
-      gap: 30px;
-      margin-top: 15px;
+      gap: 20px;
+      margin-top: 14px;
       flex-wrap: wrap;
+      align-items: center;
     }
-
-    .meta-item {
+    .meta-chip {
       display: flex;
       flex-direction: column;
+      gap: 3px;
     }
-
-    .meta-label {
-      font-size: 11px;
-      color: var(--text-secondary);
+    .meta-chip-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      margin-bottom: 5px;
     }
-
-    .meta-value {
-      font-size: 14px;
+    .meta-chip-value {
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--bg-2);
       cursor: pointer;
-      padding: 6px 10px;
-      border-radius: 4px;
-      transition: background-color 0.2s;
+      transition: background var(--transition);
+      color: var(--text-1);
     }
+    .meta-chip-value:hover { background: var(--bg-3); }
 
-    .meta-value:hover {
-      background-color: var(--bg-secondary);
-    }
-
-    /* マークダウンエディタ */
-    .markdown-editor {
+    /* Markdown editor */
+    .md-area {
+      flex: 1;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-top: 20px;
+      gap: 0;
+      overflow: hidden;
     }
-
-    .editor-pane, .preview-pane {
+    .md-pane {
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
-
-    .editor-pane textarea {
+    .md-pane + .md-pane { border-left: 1px solid var(--border); }
+    .md-pane-label {
+      padding: 8px 20px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .md-textarea {
       flex: 1;
-      background-color: var(--bg-secondary);
-      color: var(--text-primary);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 15px;
-      font-family: "Monaco", "Courier New", monospace;
+      background: var(--bg-1);
+      color: var(--text-0);
+      border: none;
+      padding: 18px 20px;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 13px;
+      line-height: 1.7;
       resize: none;
+      outline: none;
     }
-
-    .preview-pane {
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 15px;
+    .md-preview {
+      flex: 1;
+      padding: 18px 22px;
       overflow-y: auto;
+      background: var(--bg-1);
+      color: var(--text-1);
+      line-height: 1.75;
+      font-size: 13.5px;
     }
+    .md-preview h1, .md-preview h2, .md-preview h3 { color: var(--text-0); margin: 1em 0 0.4em; }
+    .md-preview code { font-family: 'JetBrains Mono', monospace; background: var(--bg-3); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+    .md-preview pre { background: var(--bg-3); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 0.8em 0; }
+    .md-preview ul, .md-preview ol { padding-left: 1.4em; margin: 0.4em 0; }
+    .md-preview a { color: var(--accent); }
+    .md-preview hr { border: none; border-top: 1px solid var(--border); margin: 1em 0; }
 
-    /* オーバーレイ */
-    .overlay {
+    /* ────── Modal ────── */
+    .modal-backdrop {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 98;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.3s;
+      transition: opacity 0.15s;
     }
-
-    .overlay.active {
+    .modal-backdrop.open {
       opacity: 1;
       pointer-events: all;
     }
-
-    /* スクロールバー */
-    ::-webkit-scrollbar {
-      width: 8px;
+    .modal {
+      background: var(--bg-2);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      width: min(480px, calc(100vw - 32px));
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+      transform: translateY(8px);
+      transition: transform 0.15s;
     }
+    .modal-backdrop.open .modal { transform: translateY(0); }
 
-    ::-webkit-scrollbar-track {
-      background: var(--bg-secondary);
+    .modal-header {
+      padding: 20px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-
-    ::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
+    .modal-title { font-size: 16px; font-weight: 700; }
+    .modal-close-btn {
+      width: 28px; height: 28px;
+      border: none; background: transparent;
+      color: var(--text-2); font-size: 18px;
+      cursor: pointer; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition);
     }
+    .modal-close-btn:hover { background: var(--bg-4); color: var(--text-0); }
 
-    ::-webkit-scrollbar-thumb:hover {
-      background: var(--accent-blue);
+    .modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 11px; font-weight: 600; color: var(--text-2); letter-spacing: 0.05em; text-transform: uppercase; }
+    .form-input, .form-select {
+      background: var(--bg-3);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      color: var(--text-0);
+      padding: 9px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition);
     }
+    .form-input:focus, .form-select:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--text-2); }
+    .form-select option { background: var(--bg-3); }
 
-    /* エラーメッセージ */
-    .error-message {
-      background-color: rgba(239, 68, 68, 0.2);
-      border-left: 4px solid var(--accent-red);
-      padding: 15px;
-      border-radius: 4px;
-      margin-bottom: 20px;
-      color: #fca5a5;
-      white-space: pre-wrap;
-      overflow-x: auto;
-      font-size: 12px;
-      font-family: monospace;
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .modal-footer {
+      padding: 14px 22px 20px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      border-top: 1px solid var(--border);
     }
+    .btn { padding: 9px 18px; border: none; border-radius: var(--radius); cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; transition: background var(--transition); }
+    .btn-ghost { background: transparent; color: var(--text-1); border: 1px solid var(--border-light); }
+    .btn-ghost:hover { background: var(--bg-3); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    @media (max-width: 768px) {
-      .markdown-editor {
-        grid-template-columns: 1fr;
-      }
-      
-      .side-panel {
-        width: 100%;
-      }
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-3);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius);
+      padding: 10px 16px;
+      font-size: 13px;
+      color: var(--text-0);
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transform: translateY(8px);
+      opacity: 0;
+      transition: all 0.2s;
+      pointer-events: none;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-left: 3px solid var(--green); }
+    .toast.error   { border-left: 3px solid var(--red); }
 
-      .task-editor {
-        padding: 20px;
-      }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-2); }
+
+    @media (max-width: 640px) {
+      .md-area { grid-template-columns: 1fr; }
+      .md-pane + .md-pane { display: none; }
+      .form-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- サイドバー -->
-    <div class="sidebar">
-      <div class="sidebar-toggle" onclick="toggleSidePanel()">☰</div>
-    </div>
+<div class="layout">
 
-    <!-- オーバーレイ -->
-    <div class="overlay" id="overlay" onclick="toggleSidePanel()"></div>
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar" aria-label="サイドバー">
+    <button class="sidebar-btn accent" id="togglePanelBtn" onclick="togglePanel()" title="パネルを開く" aria-expanded="false">☰</button>
+    <button class="sidebar-btn" onclick="openNewTaskModal()" title="新規タスク作成" id="sidebarNewBtn" style="margin-top:auto">＋</button>
+  </nav>
 
-    <!-- サイドパネル -->
-    <div class="side-panel" id="sidePanel">
-      <div class="side-panel-header">
+  <!-- ── Overlay ── -->
+  <div class="overlay" id="overlay" onclick="togglePanel()"></div>
+
+  <!-- ── Side Panel ── -->
+  <aside class="side-panel" id="sidePanel" aria-label="タスクパネル">
+    <div class="panel-header">
+      <span class="panel-workspace-name" id="workspaceName">
         <%= workspace?.name || 'ワークスペース' %>
-      </div>
-      <div class="side-panel-content" id="sidePanelContent">
-        <% if (lists && lists.length > 0) { %>
-          <% lists.forEach((list) => { %>
-            <div class="task-list">
-              <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
-                <%= list.name %>
-              </div>
-              <% const listTasks = tasks.filter(t => t.listId === list.id); %>
-              <% listTasks.forEach((task) => { %>
-                <div class="task-item" onclick="selectTask(<%= task.id %>)">
-                  <div class="task-item-title"><%= task.title %></div>
-                  <div class="task-item-status"><%= task.status %></div>
-                </div>
-              <% }); %>
-            </div>
-          <% }); %>
-        <% } %>
-      </div>
+      </span>
+      <button class="panel-close" onclick="togglePanel()" title="閉じる" aria-label="パネルを閉じる">✕</button>
     </div>
 
-    <!-- メインエリア -->
-    <div class="main-area">
-      <div class="task-editor">
-        <% if (workspace && tasks && tasks.length > 0) { %>
-          <% const firstTask = tasks[0]; %>
-          <div class="task-header">
-            <h1 class="task-title" onclick="editTaskTitle(<%= firstTask.id %>)">
-              <%= firstTask.title %>
-            </h1>
-            <div class="task-meta">
-              <div class="meta-item">
-                <div class="meta-label">ステータス</div>
-                <div class="meta-value"><%= firstTask.status %></div>
-              </div>
-              <div class="meta-item">
-                <div class="meta-label">優先度</div>
-                <div class="meta-value"><%= firstTask.priority %></div>
-              </div>
-              <div class="meta-item">
-                <div class="meta-label">進捗</div>
-                <div class="meta-value"><%= firstTask.progress %>%</div>
-              </div>
-            </div>
-          </div>
+    <button class="new-task-btn" onclick="openNewTaskModal()" id="newTaskBtn">
+      <span>＋</span> 新規タスク
+    </button>
 
-          <div class="markdown-editor">
-            <div class="editor-pane">
-              <div class="meta-label" style="margin-bottom: 10px;">説明（マークダウン）</div>
-              <textarea id="taskDescription" placeholder="マークダウンで入力..."><%= firstTask.description || '' %></textarea>
+    <div class="panel-body" id="panelBody">
+      <% if (lists && lists.length > 0) { %>
+        <% lists.forEach((list) => { %>
+          <div class="list-section" id="list-section-<%= list.id %>">
+            <div class="list-label">
+              <span class="list-dot" style="background:<%= list.color || '#5b7cf7' %>"></span>
+              <%= list.name %>
             </div>
-            <div class="preview-pane">
-              <div class="meta-label" style="margin-bottom: 10px;">プレビュー</div>
-              <div id="preview"></div>
+            <% const listTasks = tasks.filter(t => t.listId === list.id); %>
+            <% if (listTasks.length === 0) { %>
+              <div style="padding:6px 14px 10px; font-size:12px; color:var(--text-2);">タスクなし</div>
+            <% } %>
+            <% listTasks.forEach((task) => { %>
+              <div class="task-item" id="task-item-<%= task.id %>" onclick="selectTask(<%= task.id %>)">
+                <div class="task-item-title"><%= task.title %></div>
+                <div class="task-item-meta">
+                  <span class="status-badge status-<%= task.status %>"><%= task.status %></span>
+                  <% if (task.dueDate) { %>
+                    <span><%= new Date(task.dueDate).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'}) %></span>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="panel-empty">
+          タスクリストがありません。<br>初期化ボタンでセットアップできます。
+        </div>
+      <% } %>
+    </div>
+  </aside>
+
+  <!-- ── Main Area ── -->
+  <main class="main-area" id="mainArea">
+    <% if (workspace && tasks && tasks.length > 0) { %>
+      <!-- タスクが選択されたら JS で内容差し替え -->
+      <div class="task-editor" id="taskEditor">
+        <div class="task-top-bar">
+          <div class="task-title-display" id="taskTitleDisplay" onclick="startEditTitle()">
+            <%= tasks[0].title %>
+          </div>
+          <input class="task-title-input" id="taskTitleInput" style="display:none"
+                 onblur="commitTitle()" onkeydown="if(event.key==='Enter')commitTitle()">
+          <div class="task-meta-row">
+            <div class="meta-chip">
+              <span class="meta-chip-label">ステータス</span>
+              <span class="meta-chip-value" id="taskStatus"><%= tasks[0].status %></span>
+            </div>
+            <div class="meta-chip">
+              <span class="meta-chip-label">優先度</span>
+              <span class="meta-chip-value" id="taskPriority"><%= tasks[0].priority %></span>
+            </div>
+            <div class="meta-chip">
+              <span class="meta-chip-label">進捗</span>
+              <span class="meta-chip-value" id="taskProgress"><%= tasks[0].progress %>%</span>
             </div>
           </div>
-        <% } else { %>
-          <div class="error-message">
-            タスクが見つかりません。タスクを作成してください。
+        </div>
+        <div class="md-area">
+          <div class="md-pane">
+            <div class="md-pane-label">説明（Markdown）</div>
+            <textarea class="md-textarea" id="mdInput" placeholder="# タスクの説明&#10;&#10;マークダウンで記述..."><%= tasks[0].description || '' %></textarea>
           </div>
+          <div class="md-pane">
+            <div class="md-pane-label">プレビュー</div>
+            <div class="md-preview" id="mdPreview"></div>
+          </div>
+        </div>
+      </div>
+    <% } else { %>
+      <!-- 空状態 -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">📋</div>
+        <h2>タスクがまだありません</h2>
+        <p>最初のタスクを作成して、<br>プロジェクトを始めましょう。</p>
+        <button class="empty-state-btn" onclick="openNewTaskModal()">＋ タスクを作成</button>
+        <% if (!workspace) { %>
+          <button class="empty-state-btn" style="background:var(--bg-3);margin-top:4px" onclick="initWorkspace()">ワークスペースを初期化</button>
         <% } %>
       </div>
+    <% } %>
+  </main>
+</div>
+
+<!-- ── Task Create Modal ── -->
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">新規タスク作成</span>
+      <button class="modal-close-btn" onclick="closeModal()" aria-label="モーダルを閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label" for="inputTitle">タスク名 <span style="color:var(--red)">*</span></label>
+        <input class="form-input" id="inputTitle" type="text" placeholder="タスクのタイトルを入力..." autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="inputList">リスト</label>
+        <select class="form-select" id="inputList">
+          <% if (lists && lists.length > 0) { %>
+            <% lists.forEach(list => { %>
+              <option value="<%= list.id %>"><%= list.name %></option>
+            <% }); %>
+          <% } else { %>
+            <option value="">（リストなし）</option>
+          <% } %>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label" for="inputStatus">ステータス</label>
+          <select class="form-select" id="inputStatus">
+            <option value="未着手">未着手</option>
+            <option value="着手中">着手中</option>
+            <option value="凍結">凍結</option>
+            <option value="完了">完了</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="inputPriority">優先度</label>
+          <select class="form-select" id="inputPriority">
+            <option value="0">0 - 最低</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3 - 中</option>
+            <option value="4">4</option>
+            <option value="5">5 - 最高</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="inputDueDate">期限（任意）</label>
+        <input class="form-input" id="inputDueDate" type="datetime-local">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" id="createBtn" onclick="createTask()">作成</button>
     </div>
   </div>
+</div>
 
-  <script>
-    function toggleSidePanel() {
-      const panel = document.getElementById('sidePanel');
-      const overlay = document.getElementById('overlay');
-      panel.classList.toggle('open');
-      overlay.classList.toggle('active');
+<!-- ── Toast ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== State =====
+  const STATE = {
+    workspaceId: <%- workspace ? workspace.id : 'null' %>,
+    currentTaskId: <%- (tasks && tasks.length > 0) ? tasks[0].id : 'null' %>,
+    tasks: <%- JSON.stringify(tasks || []) %>,
+    lists: <%- JSON.stringify(lists || []) %>,
+    userId: 1,  // TODO: 認証実装後に差し替え
+    savingTitle: false,
+  };
+
+  // ===== Panel =====
+  function togglePanel() {
+    const panel = document.getElementById('sidePanel');
+    const overlay = document.getElementById('overlay');
+    const btn = document.getElementById('togglePanelBtn');
+    const isOpen = panel.classList.toggle('open');
+    overlay.classList.toggle('active', isOpen);
+    btn.setAttribute('aria-expanded', isOpen);
+  }
+
+  // ===== Task Selection =====
+  function selectTask(taskId) {
+    const task = STATE.tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    // Update active item in sidebar
+    document.querySelectorAll('.task-item').forEach(el => el.classList.remove('active'));
+    const item = document.getElementById('task-item-' + taskId);
+    if (item) item.classList.add('active');
+
+    STATE.currentTaskId = taskId;
+    renderTaskEditor(task);
+  }
+
+  function renderTaskEditor(task) {
+    const main = document.getElementById('mainArea');
+    const statusClass = `status-${task.status}`;
+    const dueDateStr = task.dueDate
+      ? new Date(task.dueDate).toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'})
+      : '未設定';
+
+    main.innerHTML = `
+      <div class="task-editor" id="taskEditor">
+        <div class="task-top-bar">
+          <div class="task-title-display" id="taskTitleDisplay" onclick="startEditTitle()">${escHtml(task.title)}</div>
+          <input class="task-title-input" id="taskTitleInput" style="display:none"
+                 onblur="commitTitle()" onkeydown="if(event.key==='Enter')commitTitle()">
+          <div class="task-meta-row">
+            <div class="meta-chip">
+              <span class="meta-chip-label">ステータス</span>
+              <span class="meta-chip-value" id="taskStatus">
+                <span class="status-badge ${statusClass}">${escHtml(task.status)}</span>
+              </span>
+            </div>
+            <div class="meta-chip">
+              <span class="meta-chip-label">優先度</span>
+              <span class="meta-chip-value" id="taskPriority">${task.priority}</span>
+            </div>
+            <div class="meta-chip">
+              <span class="meta-chip-label">進捗</span>
+              <span class="meta-chip-value" id="taskProgress">${task.progress}%</span>
+            </div>
+            <div class="meta-chip">
+              <span class="meta-chip-label">期限</span>
+              <span class="meta-chip-value">${dueDateStr}</span>
+            </div>
+          </div>
+        </div>
+        <div class="md-area">
+          <div class="md-pane">
+            <div class="md-pane-label">説明（Markdown）</div>
+            <textarea class="md-textarea" id="mdInput" placeholder="# タスクの説明\n\nマークダウンで記述...">${escHtml(task.description || '')}</textarea>
+          </div>
+          <div class="md-pane">
+            <div class="md-pane-label">プレビュー</div>
+            <div class="md-preview" id="mdPreview"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    initMarkdownEditor();
+  }
+
+  // ===== Title Editing =====
+  function startEditTitle() {
+    const display = document.getElementById('taskTitleDisplay');
+    const input = document.getElementById('taskTitleInput');
+    if (!display || !input) return;
+    input.value = display.textContent.trim();
+    display.style.display = 'none';
+    input.style.display = '';
+    input.focus();
+    input.select();
+  }
+
+  async function commitTitle() {
+    if (STATE.savingTitle) return;
+    const display = document.getElementById('taskTitleDisplay');
+    const input = document.getElementById('taskTitleInput');
+    if (!display || !input) return;
+    const newTitle = input.value.trim();
+    if (!newTitle || newTitle === display.textContent.trim()) {
+      display.style.display = '';
+      input.style.display = 'none';
+      return;
     }
-
-    function selectTask(taskId) {
-      // タスク選択時の処理
-      console.log('Task selected:', taskId);
-      // ここで別のタスクを読み込む処理を実装
+    STATE.savingTitle = true;
+    try {
+      const resp = await fetch(`/api/tasks/${STATE.currentTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle })
+      });
+      if (!resp.ok) throw new Error(await resp.text());
+      display.textContent = newTitle;
+      // Update state & sidebar
+      const t = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+      if (t) t.title = newTitle;
+      const item = document.getElementById('task-item-' + STATE.currentTaskId);
+      if (item) item.querySelector('.task-item-title').textContent = newTitle;
+      showToast('タイトルを更新しました', 'success');
+    } catch(e) {
+      showToast('更新に失敗しました', 'error');
+    } finally {
+      STATE.savingTitle = false;
+      display.style.display = '';
+      input.style.display = 'none';
     }
+  }
 
-    function editTaskTitle(taskId) {
-      // タイトル編集モードに切り替え
-      console.log('Editing title for task:', taskId);
-    }
+  // ===== Markdown Editor =====
+  function initMarkdownEditor() {
+    const input = document.getElementById('mdInput');
+    const preview = document.getElementById('mdPreview');
+    if (!input || !preview) return;
 
-    // マークダウンプレビュー（簡易実装）
-    document.addEventListener('DOMContentLoaded', function() {
-      const textarea = document.getElementById('taskDescription');
-      const preview = document.getElementById('preview');
-
-      if (textarea && preview) {
-        textarea.addEventListener('input', function() {
-          // 簡易的なマークダウンをHTMLに変換
-          let html = textarea.value
-            .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-            .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-            .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.+?)\*/g, '<em>$1</em>')
-            .replace(/\n/g, '<br>');
-          preview.innerHTML = html;
-        });
-
-        // 初期プレビュー表示
-        textarea.dispatchEvent(new Event('input'));
-      }
+    let saveTimer;
+    const render = () => { preview.innerHTML = parseMarkdown(input.value); };
+    input.addEventListener('input', () => {
+      render();
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => saveDescription(input.value), 1500);
     });
-  </script>
+    render();
+  }
+
+  async function saveDescription(desc) {
+    if (!STATE.currentTaskId) return;
+    try {
+      await fetch(`/api/tasks/${STATE.currentTaskId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: desc })
+      });
+    } catch(e) { /* silent */ }
+  }
+
+  function parseMarkdown(text) {
+    if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
+    let h = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+      .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+      .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')
+      .replace(/`(.+?)`/g,'<code>$1</code>')
+      .replace(/^- (.+)$/gm,'<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+      .replace(/---/g,'<hr>')
+      .replace(/\n{2,}/g,'</p><p>')
+      .replace(/\n/g,'<br>');
+    return '<p>' + h + '</p>';
+  }
+
+  // ===== Modal =====
+  function openNewTaskModal() {
+    if (!STATE.workspaceId) {
+      if (confirm('ワークスペースがありません。初期化しますか？')) initWorkspace();
+      return;
+    }
+    document.getElementById('inputTitle').value = '';
+    document.getElementById('inputDueDate').value = '';
+    document.getElementById('modalBackdrop').classList.add('open');
+    setTimeout(() => document.getElementById('inputTitle').focus(), 80);
+  }
+
+  function closeModal() {
+    document.getElementById('modalBackdrop').classList.remove('open');
+  }
+
+  document.getElementById('modalBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // ===== Create Task =====
+  async function createTask() {
+    const title = document.getElementById('inputTitle').value.trim();
+    if (!title) {
+      document.getElementById('inputTitle').focus();
+      showToast('タスク名を入力してください', 'error');
+      return;
+    }
+    const listId = document.getElementById('inputList').value;
+    if (!listId) { showToast('リストを選択してください', 'error'); return; }
+
+    const btn = document.getElementById('createBtn');
+    btn.disabled = true;
+    btn.textContent = '作成中...';
+
+    try {
+      const body = {
+        title,
+        listId: parseInt(listId),
+        createdById: STATE.userId,
+        status: document.getElementById('inputStatus').value,
+        priority: parseInt(document.getElementById('inputPriority').value),
+        dueDate: document.getElementById('inputDueDate').value || null,
+      };
+      const resp = await fetch(`/api/workspaces/${STATE.workspaceId}/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        const err = await resp.json();
+        throw new Error(err.error || 'Unknown error');
+      }
+      const task = await resp.json();
+      STATE.tasks.push(task);
+
+      // サイドパネルに追加
+      addTaskToPanel(task, parseInt(listId));
+
+      // 空状態なら差し替え
+      const emptyState = document.getElementById('emptyState');
+      if (emptyState) {
+        renderTaskEditor(task);
+      }
+
+      closeModal();
+      showToast('タスクを作成しました ✓', 'success');
+      selectTask(task.id);
+    } catch(e) {
+      showToast('作成に失敗: ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '作成';
+    }
+  }
+
+  function addTaskToPanel(task, listId) {
+    const section = document.getElementById('list-section-' + listId);
+    if (!section) return;
+    // 「タスクなし」テキストを消す
+    const empty = section.querySelector('[style*="タスクなし"]');
+    if (empty) empty.remove();
+
+    const statusClass = `status-${task.status}`;
+    const div = document.createElement('div');
+    div.className = 'task-item';
+    div.id = 'task-item-' + task.id;
+    div.setAttribute('onclick', `selectTask(${task.id})`);
+    div.innerHTML = `
+      <div class="task-item-title">${escHtml(task.title)}</div>
+      <div class="task-item-meta">
+        <span class="status-badge ${statusClass}">${escHtml(task.status)}</span>
+      </div>
+    `;
+    section.appendChild(div);
+  }
+
+  // ===== Init Workspace =====
+  async function initWorkspace() {
+    try {
+      const resp = await fetch('/api/init', { method: 'POST' });
+      if (!resp.ok) throw new Error('初期化に失敗しました');
+      showToast('ワークスペースを作成しました。ページを更新します...', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } catch(e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  // ===== Toast =====
+  let toastTimer;
+  function showToast(msg, type = '') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show' + (type ? ' ' + type : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
+  }
+
+  // ===== Helpers =====
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ===== Init =====
+  document.addEventListener('DOMContentLoaded', () => {
+    initMarkdownEditor();
+    // 最初のタスクをアクティブに
+    if (STATE.currentTaskId) {
+      const item = document.getElementById('task-item-' + STATE.currentTaskId);
+      if (item) item.classList.add('active');
+    }
+  });
+</script>
 </body>
 </html>
