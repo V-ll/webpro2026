@@ -396,7 +396,7 @@
     const main = document.getElementById('mainArea');
     const statusClass = `status-${task.status}`;
     const dueDateStr = task.dueDate
-      ? new Date(task.dueDate).toLocaleDateString('ja-JP', {year:'numeric',month:'long',day:'numeric'})
+      ? new Date(task.dueDate).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo',year:'numeric',month:'long',day:'numeric'})
       : '未設定';
 
     main.innerHTML = `
