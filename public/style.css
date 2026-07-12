@@ -589,6 +589,8 @@ body {
 .reminder-remove-btn { border: none; background: transparent; color: var(--text-2); cursor: pointer; font-size: 15px; line-height: 1; padding: 1px 3px; }
 .reminder-remove-btn:hover { color: var(--red); }
 .reminder-empty { color: var(--text-2); font-size: 12px; padding: 3px 0; }
+.reminder-enable-btn { align-self: flex-start; background: transparent; border: none; color: var(--accent); cursor: pointer; font-family: inherit; font-size: 12px; padding: 0; }
+.reminder-enable-btn:hover { color: var(--accent-hover); text-decoration: underline; }
 
 /* Markdown editor */
 .md-area {

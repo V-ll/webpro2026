@@ -339,6 +339,7 @@
       </div>
     </div>
     <div class="reminder-list" id="reminderList"></div>
+    <button class="reminder-enable-btn" type="button" onclick="enableReminderAlerts()">通知音・ブラウザ通知を有効化</button>
   </div>
 </div>
 
@@ -1125,6 +1126,94 @@
     } catch (e) { showToast(e.message, 'error'); }
   }
 
+  // ── Reminder alerts ──
+  const REMINDER_OFFSETS = {
+    '30min': 30 * 60 * 1000,
+    '1hour': 60 * 60 * 1000,
+    '3hours': 3 * 60 * 60 * 1000,
+    '12hours': 12 * 60 * 60 * 1000,
+    '1day': 24 * 60 * 60 * 1000,
+    '3days': 3 * 24 * 60 * 60 * 1000,
+    '1week': 7 * 24 * 60 * 60 * 1000
+  };
+  let reminderAudioContext;
+
+  async function getReminderAudioContext() {
+    if (!window.AudioContext && !window.webkitAudioContext) return null;
+    if (!reminderAudioContext) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      reminderAudioContext = new AudioContextClass();
+    }
+    if (reminderAudioContext.state === 'suspended') await reminderAudioContext.resume();
+    return reminderAudioContext;
+  }
+
+  async function enableReminderAlerts() {
+    try {
+      await getReminderAudioContext();
+      if ('Notification' in window && Notification.permission === 'default') {
+        await Notification.requestPermission();
+      }
+      showToast('リマインダー通知を有効化しました', 'success');
+    } catch {
+      showToast('通知音を有効化できませんでした', 'error');
+    }
+  }
+
+  function getReminderTime(task, reminder) {
+    if (reminder.reminderType === 'custom') return new Date(reminder.customTime).getTime();
+    if (!task.dueDate || !REMINDER_OFFSETS[reminder.reminderType]) return null;
+    return new Date(task.dueDate).getTime() - REMINDER_OFFSETS[reminder.reminderType];
+  }
+
+  function reminderStorageKey(reminder, reminderTime) {
+    return `task-manager-reminder-${reminder.id}-${reminderTime}`;
+  }
+
+  async function playReminderSound(intensity) {
+    const context = await getReminderAudioContext();
+    if (!context) return;
+    const level = Math.min(5, Math.max(1, Number(intensity) || 1));
+    const now = context.currentTime;
+    for (let index = 0; index < level; index += 1) {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      const start = now + index * 0.22;
+      oscillator.type = level >= 4 ? 'square' : 'sine';
+      oscillator.frequency.value = 440 + level * 80;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(0.08, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.start(start);
+      oscillator.stop(start + 0.18);
+    }
+  }
+
+  async function fireReminder(task, reminder, reminderTime) {
+    const key = reminderStorageKey(reminder, reminderTime);
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, 'fired');
+    } catch { /* localStorage が使えない環境でも通知は試みる */ }
+
+    showToast(`リマインダー: ${task.title}`, 'error');
+    playReminderSound(reminder.soundIntensity);
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('タスクリマインダー', { body: task.title });
+    }
+  }
+
+  function checkReminderSchedules() {
+    const now = Date.now();
+    STATE.tasks.forEach(task => {
+      (task.reminders || []).forEach(reminder => {
+        const reminderTime = getReminderTime(task, reminder);
+        if (reminderTime && now >= reminderTime) fireReminder(task, reminder, reminderTime);
+      });
+    });
+  }
+
   // ── Task deletion ──
   async function deleteCurrentTask() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
@@ -1170,6 +1259,9 @@
   // ===== Init =====
   document.addEventListener('DOMContentLoaded', () => {
     initMarkdownEditor();
+    document.addEventListener('pointerdown', () => { getReminderAudioContext(); }, { once: true });
+    checkReminderSchedules();
+    window.setInterval(checkReminderSchedules, 15000);
     // 最初のタスクをアクティブに
     if (STATE.currentTaskId) {
       const item = document.getElementById('task-item-' + STATE.currentTaskId);
