@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Task Manager<% if (workspace) { %> - <%= workspace.name %><% } %></title>
   <meta name="description" content="軽量・高速なタスク管理ツール。マイルストーン・ワークスペース・リマインダー対応。">
+  <!-- 数式(mathjax) -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <!-- マークダウンパーサ -->
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
   <!-- 木の下2行を追加 -->
@@ -1097,8 +1099,10 @@
     let renderTimer;
     const render = () => { preview.innerHTML = parseMarkdown(input.value); };
     input.addEventListener('input', () => {
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(() => {render();hljs.highlightAll()}, 100);
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => {render();hljs.highlightAll();saveDescription(input.value);}, 1500);
+      saveTimer = setTimeout(() => {saveDescription(input.value);}, 1500);
     });
     render();
     hljs.highlightAll();
