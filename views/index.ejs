@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Task Manager<% if (workspace) { %> - <%= workspace.name %><% } %></title>
   <meta name="description" content="軽量・高速なタスク管理ツール。マイルストーン・ワークスペース・リマインダー対応。">
+  <!-- 木の下2行を追加 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1121,7 +1124,7 @@
       .replace(/^# (.+)$/gm,'<h1>$1</h1>')
       .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
       .replace(/\*(.+?)\*/g,'<em>$1</em>')
-      .replace(/```.+?\n([\s\S]+?)\n```/g,'<pre><code class="language-python">$1</code></pre>')
+      .replace(/```.*?\n([\s\S]+?)\n```/g,'<pre><code class="language-python">$1</code></pre>')
       .replace(/`(.+?)`/g,'<code>$1</code>')
       .replace(/^- (.+)$/gm,'<li>$1</li>')
       .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
@@ -1152,7 +1155,7 @@
   });
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape' || e.key==='Enter') closeModal();
   });
 
   // ===== Create Task =====
