@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Task Manager<% if (workspace) { %> - <%= workspace.name %><% } %></title>
   <meta name="description" content="軽量・高速なタスク管理ツール。マイルストーン・ワークスペース・リマインダー対応。">
+  <!-- マークダウンパーサ -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
   <!-- 木の下2行を追加 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1117,24 +1119,29 @@
 
   function parseMarkdown(text) {
     if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
-    let h = text
-      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-      .replace(/^##### (.+)$/gm,'<h5>$1</h5>')
-      .replace(/^#### (.+)$/gm,'<h4>$1</h4>')
-      .replace(/^### (.+)$/gm,'<h3>$1</h3>')
-      .replace(/^## (.+)$/gm,'<h2>$1</h2>')
-      .replace(/^# (.+)$/gm,'<h1>$1</h1>')
-      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g,'<em>$1</em>')
-      .replace(/```.*?\n([\s\S]+?)\n```/g,'<pre><code class="language-python">$1</code></pre>')
-      .replace(/`(.+?)`/g,'<code>$1</code>')
-      .replace(/^- (.+)$/gm,'<li>$1</li>')
-      .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
-      .replace(/---/g,'<hr>')
-      <!-- .replace(/\n{2,}/g,'</p><p>') -->
-      <!-- .replace(/\n/g,'<br>'); -->
+    let h=marked.parse(text);
     return '<p>' + h + '</p>';
   }
+  <!-- function parseMarkdown(text) { -->
+  <!--   if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>'; -->
+  <!--   let h = text -->
+  <!--     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') -->
+  <!--     .replace(/^##### (.+)$/gm,'<h5>$1</h5>') -->
+  <!--     .replace(/^#### (.+)$/gm,'<h4>$1</h4>') -->
+  <!--     .replace(/^### (.+)$/gm,'<h3>$1</h3>') -->
+  <!--     .replace(/^## (.+)$/gm,'<h2>$1</h2>') -->
+  <!--     .replace(/^# (.+)$/gm,'<h1>$1</h1>') -->
+  <!--     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>') -->
+  <!--     .replace(/\*(.+?)\*/g,'<em>$1</em>') -->
+  <!--     .replace(/```.*?\n([\s\S]+?)\n```/g,'<pre><code class="language-python">$1</code></pre>') -->
+  <!--     .replace(/`(.+?)`/g,'<code>$1</code>') -->
+  <!--     .replace(/^- (.+)$/gm,'<li>$1</li>') -->
+  <!--     .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>') -->
+  <!--     .replace(/---/g,'<hr>') -->
+  <!--     <!-- .replace(/\n{2,}/g,'</p><p>') --> -->
+  <!--     <!-- .replace(/\n/g,'<br>'); --> -->
+  <!--   return '<p>' + h + '</p>'; -->
+  <!-- } -->
 
   // ===== Modal =====
   function openNewTaskModal() {
