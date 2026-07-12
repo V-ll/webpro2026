@@ -36,10 +36,8 @@
     <button class="sidebar-btn accent" id="togglePanelBtn" onclick="togglePanel()" title="パネルを開く" aria-expanded="false">☰</button>
     <button class="sidebar-btn" onclick="openNewTaskModal()" title="新規タスク作成" id="sidebarNewBtn" style="margin-top:auto">＋</button>
   </nav>
-
   <!-- ── Overlay ── -->
   <div class="overlay" id="overlay" onclick="togglePanel()"></div>
-
   <!-- ── Side Panel ── -->
   <aside class="side-panel" id="sidePanel" aria-label="タスクパネル">
     <div class="panel-header">
@@ -51,11 +49,9 @@
         <button class="panel-close" onclick="togglePanel()" title="閉じる" aria-label="パネルを閉じる">✕</button>
       </div>
     </div>
-
     <button class="new-task-btn" onclick="openNewTaskModal()" id="newTaskBtn">
       <span>＋</span> 新規タスク
     </button>
-
     <div class="panel-body" id="panelBody">
       <% if (lists && lists.length > 0) { %>
         <% lists.forEach((list) => { %>
@@ -88,7 +84,6 @@
       <% } %>
     </div>
   </aside>
-
   <!-- ── Main Area ── -->
   <main class="main-area" id="mainArea">
     <% if (workspace && tasks && tasks.length > 0) { %>
@@ -166,7 +161,6 @@
     <% } %>
   </main>
 </div>
-
 <!-- ── Task Create Modal ── -->
 <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal" onclick="event.stopPropagation()">
@@ -224,7 +218,6 @@
     </div>
   </div>
 </div>
-
 <!-- ── Workspace Manager Modal ── -->
 <div class="modal-backdrop" id="workspaceManagerModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceManagerModalTitle">
   <div class="modal" onclick="event.stopPropagation()">
@@ -253,7 +246,6 @@
     </div>
   </div>
 </div>
-
 <!-- ── Workspace Create Modal ── -->
 <div class="modal-backdrop" id="workspaceModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceModalTitle">
   <div class="modal" onclick="event.stopPropagation()">
@@ -277,7 +269,6 @@
     </div>
   </div>
 </div>
-
 <!-- ── Meta Popups ── -->
 <!-- Status Popup -->
 <div class="meta-popup" id="popup-status" style="display:none" role="dialog" aria-label="ステータス選択">
@@ -289,13 +280,11 @@
   </div>
   <div id="statusOptionList"></div>
 </div>
-
 <!-- Priority Popup -->
 <div class="meta-popup" id="popup-priority" style="display:none" role="dialog" aria-label="優先度選択">
   <div class="meta-popup-header">優先度 (0 = 最低 / 5 = 最高)</div>
   <div class="priority-grid" id="priorityGrid"></div>
 </div>
-
 <!-- Progress Popup -->
 <div class="meta-popup" id="popup-progress" style="display:none" role="dialog" aria-label="進捗入力">
   <div class="meta-popup-header">進捗</div>
@@ -313,7 +302,6 @@
     <button class="progress-save-btn" onclick="saveProgress()">保存</button>
   </div>
 </div>
-
 <!-- Reminder Popup -->
 <div class="meta-popup" id="popup-reminder" style="display:none" role="dialog" aria-label="リマインダー設定">
   <div class="meta-popup-header">リマインダー</div>
@@ -341,7 +329,6 @@
     <button class="reminder-enable-btn" type="button" onclick="enableReminderAlerts()">通知音・ブラウザ通知を有効化</button>
   </div>
 </div>
-
 <!-- DueDate Popup -->
 <div class="meta-popup" id="popup-duedate" style="display:none" role="dialog" aria-label="期限設定">
   <div class="meta-popup-header">期限</div>
@@ -353,39 +340,30 @@
     </div>
   </div>
 </div>
-
 <!-- ── Toast ── -->
 <div class="toast" id="toast"></div>
-
 <script>
   function toISOStringWithTimezone(date) {
     const year = date.getFullYear().toString();
     const month = zeroPadding((date.getMonth() + 1).toString());
     const day = zeroPadding(date.getDate().toString());
-
     const hour = zeroPadding(date.getHours().toString());
     const minute = zeroPadding(date.getMinutes().toString());
     const second = zeroPadding(date.getSeconds().toString());
-
     const localDate = `${year}-${month}-${day}`;
     const localTime = `${hour}:${minute}:${second}`;
-
     const diffFromUtc = date.getTimezoneOffset();
-
     // UTCだった場合
     if (diffFromUtc === 0) {
       const tzSign = 'Z';
       return `${localDate}T${localTime}${tzSign}`;
     }
-
     // UTCではない場合
     const tzSign = diffFromUtc < 0 ? '+' : '-';
     const tzHour = zeroPadding((Math.abs(diffFromUtc) / 60).toString());
     const tzMinute = zeroPadding((Math.abs(diffFromUtc) % 60).toString());
-
     return `${localDate}T${localTime}${tzSign}${tzHour}:${tzMinute}`;
   }
-
   function zeroPadding(s) {
     return ('0' + s).slice(-2);
   }
@@ -401,7 +379,6 @@
     userId: 1,  // TODO: 認証実装後に差し替え
     savingTitle: false,
   };
-
   // ===== Panel =====
   function togglePanel() {
     const panel = document.getElementById('sidePanel');
@@ -411,28 +388,23 @@
     overlay.classList.toggle('active', isOpen);
     btn.setAttribute('aria-expanded', isOpen);
   }
-
   // ===== Task Selection =====
   function selectTask(taskId) {
     const task = STATE.tasks.find(t => t.id === taskId);
     if (!task) return;
-
     // Update active item in sidebar
     document.querySelectorAll('.task-item').forEach(el => el.classList.remove('active'));
     const item = document.getElementById('task-item-' + taskId);
     if (item) item.classList.add('active');
-
     STATE.currentTaskId = taskId;
     renderTaskEditor(task);
   }
-
   function renderTaskEditor(task) {
     const main = document.getElementById('mainArea');
     const statusClass = `status-${task.status}`;
     const dueDateStr = task.dueDate
       ? new Date(task.dueDate).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo',year:'numeric',month:'long',day:'numeric'})
       : '未設定';
-
     main.innerHTML = `
       <div class="task-editor" id="taskEditor">
         <div class="task-top-bar">
@@ -483,7 +455,6 @@
     `;
     initMarkdownEditor();
   }
-
   // ===== Title Editing =====
   function startEditTitle() {
     const display = document.getElementById('taskTitleDisplay');
@@ -495,7 +466,6 @@
     input.focus();
     input.select();
   }
-
   async function commitTitle() {
     if (STATE.savingTitle) return;
     const display = document.getElementById('taskTitleDisplay');
@@ -530,7 +500,6 @@
       input.style.display = 'none';
     }
   }
-
   // ===== Markdown Editor =====
   function initMarkdownEditor() {
     const input = document.getElementById('mdInput');
@@ -562,7 +531,6 @@
       }
     }, 100);
   }
-
   async function saveDescription(desc) {
     if (!STATE.currentTaskId) return;
     try {
@@ -575,14 +543,12 @@
       console.log('saveDescription failed:'+e)
     }
   }
-
   function parseMarkdown(text) {
     if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
     let h=marked.parse(text);
     return h;
     <!-- return '<p>' + h + '</p>'; -->
   }
-
   // ===== Modal =====
   function openNewTaskModal() {
     if (!STATE.workspaceId) {
@@ -594,22 +560,18 @@
     document.getElementById('modalBackdrop').classList.add('open');
     setTimeout(() => document.getElementById('inputTitle').focus(), 80);
   }
-
   function closeModal() {
     document.getElementById('modalBackdrop').classList.remove('open');
   }
-
   function openWorkspaceModal() {
     document.getElementById('inputWorkspaceName').value = '';
     document.getElementById('inputWorkspaceDescription').value = '';
     document.getElementById('workspaceModalBackdrop').classList.add('open');
     setTimeout(() => document.getElementById('inputWorkspaceName').focus(), 80);
   }
-
   function closeWorkspaceModal() {
     document.getElementById('workspaceModalBackdrop').classList.remove('open');
   }
-
   async function openWorkspaceManagerModal() {
     const backdrop = document.getElementById('workspaceManagerModalBackdrop');
     const select = document.getElementById('workspaceSelect');
@@ -634,17 +596,14 @@
       showToast(e.message, 'error');
     }
   }
-
   function closeWorkspaceManagerModal() {
     document.getElementById('workspaceManagerModalBackdrop').classList.remove('open');
   }
-
   function switchWorkspace(workspaceId) {
     if (Number(workspaceId) !== STATE.workspaceId) {
       window.location.assign(`/?workspaceId=${workspaceId}`);
     }
   }
-
   async function saveCurrentWorkspace() {
     if (!STATE.workspaceId) return;
     const name = document.getElementById('editWorkspaceName').value.trim();
@@ -654,7 +613,6 @@
       showToast('ワークスペース名を入力してください', 'error');
       return;
     }
-
     const btn = document.getElementById('saveWorkspaceBtn');
     btn.disabled = true;
     btn.textContent = '保存中...';
@@ -676,12 +634,10 @@
       btn.textContent = '保存';
     }
   }
-
   async function deleteCurrentWorkspace() {
     if (!STATE.workspaceId) return;
     const name = document.getElementById('editWorkspaceName').value || 'このワークスペース';
     if (!window.confirm(`「${name}」を削除しますか？\n含まれるリストとタスクも削除され、この操作は元に戻せません。`)) return;
-
     const btn = document.getElementById('deleteWorkspaceBtn');
     btn.disabled = true;
     btn.textContent = '削除中...';
@@ -698,7 +654,6 @@
       btn.textContent = 'このワークスペースを削除';
     }
   }
-
   document.getElementById('modalBackdrop').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
@@ -708,7 +663,6 @@
   document.getElementById('workspaceManagerModalBackdrop').addEventListener('click', function(e) {
     if (e.target === this) closeWorkspaceManagerModal();
   });
-
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
@@ -716,7 +670,6 @@
       closeWorkspaceManagerModal();
     }
   });
-
   // ===== Create Workspace =====
   async function createWorkspace() {
     const name = document.getElementById('inputWorkspaceName').value.trim();
@@ -726,7 +679,6 @@
       showToast('ワークスペース名を入力してください', 'error');
       return;
     }
-
     const btn = document.getElementById('createWorkspaceBtn');
     btn.disabled = true;
     btn.textContent = '追加中...';
@@ -745,7 +697,6 @@
       btn.textContent = '追加';
     }
   }
-
   // ===== Create Task =====
   async function createTask() {
     const title = document.getElementById('inputTitle').value.trim();
@@ -756,11 +707,9 @@
     }
     const listId = document.getElementById('inputList').value;
     if (!listId) { showToast('リストを選択してください', 'error'); return; }
-
     const btn = document.getElementById('createBtn');
     btn.disabled = true;
     btn.textContent = '作成中...';
-
     try {
       const body = {
         title,
@@ -781,16 +730,13 @@
       }
       const task = await resp.json();
       STATE.tasks.push(task);
-
       // サイドパネルに追加
       addTaskToPanel(task, parseInt(listId));
-
       // 空状態なら差し替え
       const emptyState = document.getElementById('emptyState');
       if (emptyState) {
         renderTaskEditor(task);
       }
-
       closeModal();
       showToast('タスクを作成しました ✓', 'success');
       selectTask(task.id);
@@ -801,14 +747,12 @@
       btn.textContent = '作成';
     }
   }
-
   function addTaskToPanel(task, listId) {
     const section = document.getElementById('list-section-' + listId);
     if (!section) return;
     // 「タスクなし」テキストを消す
     const empty = section.querySelector('[style*="タスクなし"]');
     if (empty) empty.remove();
-
     const statusClass = `status-${task.status}`;
     const div = document.createElement('div');
     div.className = 'task-item';
@@ -822,7 +766,6 @@
     `;
     section.appendChild(div);
   }
-
   // ===== Init Workspace =====
   async function initWorkspace() {
     try {
@@ -834,11 +777,9 @@
       showToast(e.message, 'error');
     }
   }
-
   // ===== Meta Popup Engine =====
   const POPUP_IDS = ['popup-status','popup-priority','popup-progress','popup-duedate','popup-reminder'];
   let _activePopup = null;
-
   function openPopup(id, anchorId) {
     closeAllPopups();
     const popup = document.getElementById(id);
@@ -850,7 +791,6 @@
     _activePopup = id;
     anchor.querySelector('.meta-chip-value').classList.add('active');
   }
-
   function closeAllPopups() {
     POPUP_IDS.forEach(id => {
       const el = document.getElementById(id);
@@ -859,7 +799,6 @@
     document.querySelectorAll('.meta-chip-value.active').forEach(el => el.classList.remove('active'));
     _activePopup = null;
   }
-
   // Close popup on outside click
   document.addEventListener('click', e => {
     if (!_activePopup) return;
@@ -870,19 +809,16 @@
     if (!inside) closeAllPopups();
   });
   <!-- document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); }); -->
-
   // ── Status Popup ──
   const STATUS_COLORS = {
     '未着手': '#7a7a8e', '着手中': '#5b7cf7', '凍結': '#f5a623', '完了': '#3ecf8e'
   };
   let _customStatuses = [];
-
   function openStatusPopup() {
     renderStatusOptions();
     openPopup('popup-status', 'chip-status');
     setTimeout(() => document.getElementById('statusAddInput')?.focus(), 60);
   }
-
   function renderStatusOptions() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     const current = task?.status || '未着手';
@@ -899,7 +835,6 @@
       </div>`;
     }).join('');
   }
-
   function addCustomStatus() {
     const input = document.getElementById('statusAddInput');
     const val = input?.value.trim();
@@ -911,7 +846,6 @@
     input.value = '';
     selectStatus(val);
   }
-
   async function selectStatus(status) {
     if (!STATE.currentTaskId) return;
     try {
@@ -937,13 +871,11 @@
       showToast('ステータスを更新しました', 'success');
     } catch { showToast('更新に失敗しました', 'error'); }
   }
-
   // ── Priority Popup ──
   const PRIORITY_COLORS = [
     '#4b4b5e','#3b6ea0','#2e86c1','#d4ac0d','#e67e22','#e74c3c'
   ];
   const PRIORITY_LABELS = ['最低','','','中','','最高'];
-
   function openPriorityPopup() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     const current = task?.priority ?? 0;
@@ -957,7 +889,6 @@
     }
     openPopup('popup-priority', 'chip-priority');
   }
-
   async function selectPriority(priority) {
     if (!STATE.currentTaskId) return;
     try {
@@ -975,7 +906,6 @@
       showToast('優先度を更新しました', 'success');
     } catch { showToast('更新に失敗しました', 'error'); }
   }
-
   // ── Progress Popup ──
   function openProgressPopup() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
@@ -989,7 +919,6 @@
     openPopup('popup-progress', 'chip-progress');
     setTimeout(() => numInput?.focus(), 60);
   }
-
   function syncProgressSlider() {
     const numInput = document.getElementById('progressNumInput');
     const slider = document.getElementById('progressSlider');
@@ -998,7 +927,6 @@
     if (slider) slider.value = val;
     if (fill) fill.style.width = val + '%';
   }
-
   function syncProgressNum() {
     const slider = document.getElementById('progressSlider');
     const numInput = document.getElementById('progressNumInput');
@@ -1007,7 +935,6 @@
     if (numInput) numInput.value = val;
     if (fill) fill.style.width = val + '%';
   }
-
   async function saveProgress() {
     const val = Math.min(100, Math.max(0, parseInt(document.getElementById('progressNumInput')?.value) || 0));
     if (!STATE.currentTaskId) return;
@@ -1026,7 +953,6 @@
       showToast('進捗を更新しました', 'success');
     } catch { showToast('更新に失敗しました', 'error'); }
   }
-
   // ── DueDate Popup ──
   function openDueDatePopup() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
@@ -1041,16 +967,13 @@
     }
     openPopup('popup-duedate', 'chip-duedate');
   }
-
   async function saveDueDate() {
     const val = document.getElementById('dueDateInput')?.value || null;
     await patchDueDate(val);
   }
-
   async function clearDueDate() {
     await patchDueDate(null);
   }
-
   async function patchDueDate(val) {
     if (!STATE.currentTaskId) return;
     try {
@@ -1075,7 +998,6 @@
       showToast(val ? '期限を設定しました' : '期限をクリアしました', 'success');
     } catch { showToast('更新に失敗しました', 'error'); }
   }
-
   // ── Reminder Popup ──
   const REMINDER_LABELS = {
     '30min': '30分前', '1hour': '1時間前', '3hours': '3時間前',
@@ -1085,7 +1007,6 @@
     renderReminderList();
     openPopup('popup-reminder', 'chip-reminder');
   }
-
   function renderReminderList() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     const reminders = task?.reminders || [];
@@ -1102,13 +1023,11 @@
       return `<div class="reminder-item"><span>${label}</span><button class="reminder-remove-btn" type="button" onclick="deleteReminder(${reminder.id})" aria-label="リマインダーを削除">✕</button></div>`;
     }).join('');
   }
-
   function updateReminderChip() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     const chip = document.getElementById('taskReminder');
     if (chip) chip.textContent = task?.reminders?.length ? `${task.reminders.length}件` : 'なし';
   }
-
   async function addPresetReminder() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     if (!task?.dueDate) {
@@ -1117,7 +1036,6 @@
     }
     await addReminder(document.getElementById('reminderPresetInput').value);
   }
-
   async function addCustomReminder() {
     const customTime = document.getElementById('reminderCustomInput').value;
     if (!customTime) {
@@ -1126,7 +1044,6 @@
     }
     await addReminder('custom', toISOStringWithTimezone(new Date(customTime)));
   }
-
   async function addReminder(reminderType, customTime = null) {
     if (!STATE.currentTaskId) return;
     try {
@@ -1145,7 +1062,6 @@
       showToast('リマインダーを追加しました', 'success');
     } catch (e) { showToast(e.message, 'error'); }
   }
-
   async function deleteReminder(reminderId) {
     try {
       const resp = await fetch(`/api/reminders/${reminderId}`, { method: 'DELETE' });
@@ -1157,7 +1073,6 @@
       showToast('リマインダーを削除しました', 'success');
     } catch (e) { showToast(e.message, 'error'); }
   }
-
   // ── Reminder alerts ──
   const REMINDER_OFFSETS = {
     '30min': 30 * 60 * 1000,
@@ -1169,7 +1084,6 @@
     '1week': 7 * 24 * 60 * 60 * 1000
   };
   let reminderAudioContext;
-
   async function getReminderAudioContext() {
     if (!window.AudioContext && !window.webkitAudioContext) return null;
     if (!reminderAudioContext) {
@@ -1179,7 +1093,6 @@
     if (reminderAudioContext.state === 'suspended') await reminderAudioContext.resume();
     return reminderAudioContext;
   }
-
   async function enableReminderAlerts() {
     try {
       await getReminderAudioContext();
@@ -1191,17 +1104,14 @@
       showToast('通知音を有効化できませんでした', 'error');
     }
   }
-
   function getReminderTime(task, reminder) {
     if (reminder.reminderType === 'custom') return new Date(reminder.customTime).getTime();
     if (!task.dueDate || !REMINDER_OFFSETS[reminder.reminderType]) return null;
     return new Date(task.dueDate).getTime() - REMINDER_OFFSETS[reminder.reminderType];
   }
-
   function reminderStorageKey(reminder, reminderTime) {
     return `task-manager-reminder-${reminder.id}-${reminderTime}`;
   }
-
   async function playReminderSound(intensity) {
     const context = await getReminderAudioContext();
     if (!context) return;
@@ -1221,21 +1131,18 @@
       oscillator.stop(start + 0.18);
     }
   }
-
   async function fireReminder(task, reminder, reminderTime) {
     const key = reminderStorageKey(reminder, reminderTime);
     try {
       if (localStorage.getItem(key)) return;
       localStorage.setItem(key, 'fired');
     } catch { /* localStorage が使えない環境でも通知は試みる */ }
-
     showToast(`リマインダー: ${task.title}`, 'error');
     playReminderSound(reminder.soundIntensity);
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('タスクリマインダー', { body: task.title });
     }
   }
-
   function checkReminderSchedules() {
     const now = Date.now();
     STATE.tasks.forEach(task => {
@@ -1245,20 +1152,16 @@
       });
     });
   }
-
   // ── Task deletion ──
   async function deleteCurrentTask() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     if (!task) return;
-
     if (!window.confirm(`「${task.title}」を削除しますか？`)) return;
-
     const btn = document.getElementById('taskDeleteBtn');
     if (btn) {
       btn.disabled = true;
       btn.textContent = '削除中…';
     }
-
     try {
       const resp = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
       if (!resp.ok) throw new Error(await resp.text());
@@ -1271,7 +1174,6 @@
       showToast('削除に失敗しました', 'error');
     }
   }
-
   // ===== Toast =====
   let toastTimer;
   function showToast(msg, type = '') {
@@ -1281,13 +1183,11 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
   }
-
   // ===== Helpers =====
   function escHtml(str) {
     if (!str) return '';
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
-
   // ===== Init =====
   document.addEventListener('DOMContentLoaded', () => {
     initMarkdownEditor();
