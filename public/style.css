@@ -636,23 +636,35 @@ body {
   color: var(--text-1);
   line-height: 1.75;
   font-size: 13.5px;
+  h1, h2, h3 {
+    color: var(--text-0);
+    margin: 1em 0 0.4em;
+  }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-3);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 12px; 
+  }
+  pre { background: var(--bg-3); padding: 6px; border-radius: 6px; overflow-x: auto; margin: 0.8em 0; }
+  ul, ol { padding-left: 1.4em; margin: 0.4em 0; }
+  pre code.hljs{
+    padding:0;
+  }
+  a { color: var(--accent); }
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 1em 0;
+  }
+  blockquote {
+    background: var(--bg-3);
+    border-left: 5px solid #ccc;
+    margin: 1.5em 0;
+    padding: 0.4em;
+  }
 }
-.md-preview h1, .md-preview h2, .md-preview h3 { color: var(--text-0); margin: 1em 0 0.4em; }
-.md-preview code { 
-  font-family: 'JetBrains Mono', monospace;
-  background: var(--bg-3);
-  padding: 1px 5px;
-  border-radius: 4px;
-  font-size: 12px; 
-}
-.md-preview pre code.hljs{
-  padding:0;
-}
-.md-preview pre { background: var(--bg-3); padding: 6px; border-radius: 6px; overflow-x: auto; margin: 0.8em 0; }
-.md-preview ul, .md-preview ol { padding-left: 1.4em; margin: 0.4em 0; }
-.md-preview a { color: var(--accent); }
-.md-preview hr { border: none; border-top: 1px solid var(--border); margin: 1em 0; }
-.md-preview blockquote {background: var(--bg-3);border-left: 5px solid #ccc;margin: 1.5em 0;padding: 1em;}
 
 /* ────── Modal ────── */
 .modal-backdrop {
