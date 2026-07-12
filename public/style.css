@@ -144,11 +144,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.workspace-add-btn:hover {
-  background: var(--accent-dim);
-  color: var(--accent-hover);
+  &:hover {
+    background: var(--accent-dim);
+    color: var(--accent-hover);
   }
+}
 .panel-close {
   width: 26px;
   height: 26px;
@@ -695,10 +695,10 @@ body {
   font-family: inherit;
   font-size: 12px;
   outline: none;
+  &:focus {
+    border-color: var(--accent);
   }
-.reminder-select:focus {
-  border-color: var(--accent);
-  }
+}
 .reminder-custom-row {
   display: flex;
   flex-direction: column;
