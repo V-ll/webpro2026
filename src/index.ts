@@ -24,6 +24,9 @@ const prisma = new PrismaClient({ adapter, log: ["query", "info", "warn", "error
 
 const app = express();
 const PORT = process.env.PORT || 8888;
+const PRESET_REMINDER_TYPES = new Set(["30min", "1hour", "3hours", "12hours", "1day", "3days", "1week"]);
+
+const getSoundIntensity = (priority: number) => Math.min(5, Math.max(1, priority));
 
 // EJS を使うための設定
 app.set("view engine", "ejs");
@@ -53,7 +56,8 @@ app.get("/", async (req, res) => {
             tasks: {
               where: { deletedAt: null },
               include: {
-                milestones: true
+                milestones: true,
+                reminders: true
               }
             }
           }
@@ -253,6 +257,7 @@ app.get("/api/workspaces/:workspaceId/tasks", async (req, res) => {
       },
       include: {
         milestones: true,
+        reminders: true,
         createdBy: true
       }
     });
@@ -280,7 +285,7 @@ app.post("/api/workspaces/:workspaceId/tasks", async (req, res) => {
         priority: priority || 0,
         dueDate: dueDate ? new Date(dueDate) : null
       },
-      include: { milestones: true }
+      include: { milestones: true, reminders: true }
     });
 
     res.json(task);
@@ -307,12 +312,75 @@ app.put("/api/tasks/:taskId", async (req, res) => {
         ...(priority !== undefined && { priority: parseInt(priority) }),
         ...("dueDate" in req.body && { dueDate: dueDate ? new Date(dueDate) : null }),
       },
-      include: { milestones: true }
+      include: { milestones: true, reminders: true }
     });
 
     res.json(task);
   } catch (error) {
     log("PUT /api/tasks - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+// ルート：API - リマインダー追加
+app.post("/api/tasks/:taskId/reminders", async (req, res) => {
+  try {
+    const taskId = Number(req.params.taskId);
+    const reminderType = typeof req.body.reminderType === "string" ? req.body.reminderType : "";
+    const customTime = req.body.customTime ? new Date(req.body.customTime) : null;
+    if (!Number.isInteger(taskId) || taskId <= 0) {
+      res.status(400).json({ error: "無効なタスクです" });
+      return;
+    }
+    if (reminderType !== "custom" && !PRESET_REMINDER_TYPES.has(reminderType)) {
+      res.status(400).json({ error: "無効なリマインダー種別です" });
+      return;
+    }
+    if (reminderType === "custom" && (!customTime || Number.isNaN(customTime.getTime()))) {
+      res.status(400).json({ error: "日時を指定してください" });
+      return;
+    }
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      select: { dueDate: true, priority: true, deletedAt: true }
+    });
+    if (!task || task.deletedAt) {
+      res.status(404).json({ error: "タスクが見つかりません" });
+      return;
+    }
+    if (reminderType !== "custom" && !task.dueDate) {
+      res.status(400).json({ error: "期限を設定してからリマインダーを追加してください" });
+      return;
+    }
+
+    const reminder = await prisma.reminder.create({
+      data: {
+        taskId,
+        reminderType,
+        customTime: reminderType === "custom" ? customTime : null,
+        soundIntensity: getSoundIntensity(task.priority)
+      }
+    });
+    res.status(201).json(reminder);
+  } catch (error) {
+    log("POST /api/tasks/:taskId/reminders - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+// ルート：API - リマインダー削除
+app.delete("/api/reminders/:reminderId", async (req, res) => {
+  try {
+    const reminderId = Number(req.params.reminderId);
+    if (!Number.isInteger(reminderId) || reminderId <= 0) {
+      res.status(400).json({ error: "無効なリマインダーです" });
+      return;
+    }
+    await prisma.reminder.delete({ where: { id: reminderId } });
+    res.status(204).send();
+  } catch (error) {
+    log("DELETE /api/reminders/:reminderId - Error", error);
     res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
   }
 });
@@ -327,7 +395,7 @@ app.delete("/api/tasks/:taskId", async (req, res) => {
     const task = await prisma.task.update({
       where: { id: parseInt(taskId) },
       data: { deletedAt: new Date() },
-      include: { milestones: true }
+      include: { milestones: true, reminders: true }
     });
 
     res.json(task);
