@@ -1097,10 +1097,8 @@
     let renderTimer;
     const render = () => { preview.innerHTML = parseMarkdown(input.value); };
     input.addEventListener('input', () => {
-      render();
       clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => saveDescription(input.value), 1500);
-      hljs.highlightAll();
+      saveTimer = setTimeout(() => {render();hljs.highlightAll();saveDescription(input.value);}, 1500);
     });
     render();
     hljs.highlightAll();
@@ -1122,26 +1120,6 @@
     let h=marked.parse(text);
     return '<p>' + h + '</p>';
   }
-  <!-- function parseMarkdown(text) { -->
-  <!--   if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>'; -->
-  <!--   let h = text -->
-  <!--     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') -->
-  <!--     .replace(/^##### (.+)$/gm,'<h5>$1</h5>') -->
-  <!--     .replace(/^#### (.+)$/gm,'<h4>$1</h4>') -->
-  <!--     .replace(/^### (.+)$/gm,'<h3>$1</h3>') -->
-  <!--     .replace(/^## (.+)$/gm,'<h2>$1</h2>') -->
-  <!--     .replace(/^# (.+)$/gm,'<h1>$1</h1>') -->
-  <!--     .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>') -->
-  <!--     .replace(/\*(.+?)\*/g,'<em>$1</em>') -->
-  <!--     .replace(/```.*?\n([\s\S]+?)\n```/g,'<pre><code class="language-python">$1</code></pre>') -->
-  <!--     .replace(/`(.+?)`/g,'<code>$1</code>') -->
-  <!--     .replace(/^- (.+)$/gm,'<li>$1</li>') -->
-  <!--     .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>') -->
-  <!--     .replace(/---/g,'<hr>') -->
-  <!--     <!-- .replace(/\n{2,}/g,'</p><p>') --> -->
-  <!--     <!-- .replace(/\n/g,'<br>'); --> -->
-  <!--   return '<p>' + h + '</p>'; -->
-  <!-- } -->
 
   // ===== Modal =====
   function openNewTaskModal() {
