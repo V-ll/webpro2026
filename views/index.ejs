@@ -1086,7 +1086,6 @@
   function renderReminderList() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     const reminders = task?.reminders || [];
-    console.log(reminders);
     const list = document.getElementById('reminderList');
     if (!list) return;
     if (!reminders.length) {
@@ -1097,8 +1096,6 @@
       const label = reminder.reminderType === 'custom'
         ? new Date(reminder.customTime).toLocaleString('ja-JP', {timeZone:'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         : REMINDER_LABELS[reminder.reminderType];
-      console.log('renderReminderList->innerHTML');
-      console.log(label);
       return `<div class="reminder-item"><span>${label}</span><button class="reminder-remove-btn" type="button" onclick="deleteReminder(${reminder.id})" aria-label="リマインダーを削除">✕</button></div>`;
     }).join('');
   }
@@ -1124,15 +1121,12 @@
       showToast('日時を指定してください', 'error');
       return;
     }
-    console.log(customTime);
-    console.log(toISOStringWithTimezone(new Date(customTime)));
     await addReminder('custom', toISOStringWithTimezone(new Date(customTime)));
   }
 
   async function addReminder(reminderType, customTime = null) {
     if (!STATE.currentTaskId) return;
     try {
-      console.log(JSON.stringify({ reminderType, customTime }));
       const resp = await fetch(`/api/tasks/${STATE.currentTaskId}/reminders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
