@@ -1093,6 +1093,7 @@
 
     let saveTimer;
     const render = () => { preview.innerHTML = parseMarkdown(input.value); };
+    hljs.highlightAll();
     input.addEventListener('input', () => {
       render();
       clearTimeout(saveTimer);
@@ -1280,7 +1281,7 @@
     anchors.forEach(a => { if (a.contains(e.target)) inside = true; });
     if (!inside) closeAllPopups();
   });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); });
+  <!-- document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); }); -->
 
   // ── Status Popup ──
   const STATUS_COLORS = {
@@ -1511,7 +1512,6 @@
       const item = document.getElementById('task-item-' + STATE.currentTaskId);
       if (item) item.classList.add('active');
     }
-    hljs.highlightAll();
   });
 </script>
 </body>
