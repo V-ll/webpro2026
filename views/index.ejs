@@ -1077,7 +1077,6 @@
     '30min': '30分前', '1hour': '1時間前', '3hours': '3時間前',
     '12hours': '12時間前', '1day': '1日前', '3days': '3日前', '1week': '1週間前'
   };
-
   function openReminderPopup() {
     renderReminderList();
     openPopup('popup-reminder', 'chip-reminder');
@@ -1125,7 +1124,7 @@
       return;
     }
     console.log(customTime);
-    console.log(customTime);
+    console.log(toISOStringWithTimezone(Date(customTime)));
     await addReminder('custom', customTime);
   }
 
