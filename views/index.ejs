@@ -716,7 +716,6 @@
 </head>
 <body>
 <div class="layout">
-
   <!-- ── Sidebar ── -->
   <nav class="sidebar" aria-label="サイドバー">
     <button class="sidebar-btn accent" id="togglePanelBtn" onclick="togglePanel()" title="パネルを開く" aria-expanded="false">☰</button>
@@ -1037,6 +1036,7 @@
       </div>
     `;
     initMarkdownEditor();
+    hljs.highlightAll();
   }
 
   // ===== Title Editing =====
@@ -1131,7 +1131,7 @@
       .replace(/---/g,'<hr>')
       <!-- .replace(/\n{2,}/g,'</p><p>') -->
       .replace(/\n/g,'</p><p>');
-    return '<p>' + h + '</p><script>hljs.highlightAll();<\/script>';
+    return '<p>' + h + '</p>';
   }
 
   // ===== Modal =====
