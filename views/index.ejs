@@ -1031,7 +1031,6 @@
           <div class="md-pane">
             <div class="md-pane-label">プレビュー</div>
             <div class="md-preview" id="mdPreview"></div>
-            <script>hljs.highlightAll();<\/script>
           </div>
         </div>
       </div>
@@ -1512,6 +1511,7 @@
       const item = document.getElementById('task-item-' + STATE.currentTaskId);
       if (item) item.classList.add('active');
     }
+    hljs.highlightAll();
   });
 </script>
 </body>
