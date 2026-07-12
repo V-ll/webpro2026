@@ -416,7 +416,7 @@ body {
   background: var(--bg-2);
   cursor: pointer;
   transition: background var(--transition);
-  color: var(--text-1);
+  color: var(--text-0);
   &:hover {
     background: var(--bg-3);
   }
