@@ -1114,18 +1114,20 @@
     if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
     let h = text
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/^##### (.+)$/gm,'<h5>$1</h5>')
+      .replace(/^#### (.+)$/gm,'<h4>$1</h4>')
       .replace(/^### (.+)$/gm,'<h3>$1</h3>')
       .replace(/^## (.+)$/gm,'<h2>$1</h2>')
       .replace(/^# (.+)$/gm,'<h1>$1</h1>')
       .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
       .replace(/\*(.+?)\*/g,'<em>$1</em>')
-      .replace(/```([\s\S]+?)```/g,'<code>$1</code>')
+      .replace(/```.+?\n([\s\S]+?)\n```/g,'<pre><code class="language-python">$1</code></pre>')
       .replace(/`(.+?)`/g,'<code>$1</code>')
       .replace(/^- (.+)$/gm,'<li>$1</li>')
       .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
       .replace(/---/g,'<hr>')
-      .replace(/\n{2,}/g,'</p><p>')
-      .replace(/\n/g,'<br>');
+      <!-- .replace(/\n{2,}/g,'</p><p>') -->
+      .replace(/\n/g,'</p><p>');
     return '<p>' + h + '</p>';
   }
 
