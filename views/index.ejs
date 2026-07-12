@@ -385,7 +385,7 @@
     return `${localDate}T${localTime}${tzSign}${tzHour}:${tzMinute}`;
   }
 
-  function zeroPadding(s: string): string {
+  function zeroPadding(s) {
     return ('0' + s).slice(-2);
   }
   // ===== State =====
