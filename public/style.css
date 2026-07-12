@@ -66,18 +66,18 @@ body {
   justify-content: center;
   font-size: 18px;
   transition: background var(--transition), color var(--transition);
-}
-.sidebar-btn:hover, .sidebar-btn.active {
-  background: var(--bg-3);
-  color: var(--text-0);
-}
-.sidebar-btn.accent {
-  color: var(--accent);
+  &.accent {
+    color: var(--accent);
+    &:hover {
+      background: var(--accent-dim);
+      color: var(--accent-hover);
+    }
   }
-.sidebar-btn.accent:hover {
-  background: var(--accent-dim);
-  color: var(--accent-hover);
+  &:hover, &.active {
+    background: var(--bg-3);
+    color: var(--text-0);
   }
+}
 
 /* ────── Side Panel ────── */
 .side-panel {
@@ -94,11 +94,10 @@ body {
   transform: translateX(calc(-100% - var(--sidebar-w)));
   transition: transform var(--transition);
   overflow: hidden;
+  &.open {
+    transform: translateX(0);
+  }
 }
-.side-panel.open {
-  transform: translateX(0);
-}
-
 .panel-header {
   padding: 16px 16px 12px;
   border-bottom: 1px solid var(--border);
@@ -123,10 +122,10 @@ body {
   padding: 4px 6px;
   margin-left: -6px;
   border-radius: 6px;
-}
-.panel-workspace-name:hover {
-  background: var(--bg-3);
+  &:hover {
+    background: var(--bg-3);
   }
+}
 .panel-header-actions {
   display: flex;
   align-items: center;
@@ -164,12 +163,11 @@ body {
   justify-content: center;
   flex-shrink: 0;
   transition: background var(--transition);
-}
-.panel-close:hover {
-  background: var(--bg-3);
-  color: var(--text-0);
+  &:hover {
+    background: var(--bg-3);
+    color: var(--text-0);
   }
-
+}
 /* New task button in panel */
 .new-task-btn {
   margin: 12px 12px 8px;
@@ -186,14 +184,13 @@ body {
   align-items: center;
   gap: 7px;
   transition: background var(--transition), transform 0.1s;
+  &:hover {
+    background: var(--accent-hover);
+  }
+  &:active {
+    transform: scale(0.97);
+  }
 }
-.new-task-btn:hover {
-  background: var(--accent-hover);
-  }
-.new-task-btn:active {
-  transform: scale(0.97);
-  }
-
 /* Panel sections */
 .panel-body {
   flex: 1;
@@ -231,13 +228,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 3px;
-}
-.task-item:hover {
-  background: var(--bg-3);
+  &:hover {
+    background: var(--bg-3);
   }
-.task-item.active {
-  background: var(--accent-dim);
-  border-left-color: var(--accent);
+  &.active {
+    background: var(--accent-dim);
+    border-left-color: var(--accent);
+  }
 }
 .task-item-title {
   font-size: 13px;
@@ -297,12 +294,11 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition);
-}
-.overlay.active {
-  opacity: 1;
-  pointer-events: all;
+  &.active {
+    opacity: 1;
+    pointer-events: all;
   }
-
+}
 /* ────── Main Area ────── */
 .main-area {
   flex: 1;
@@ -554,13 +550,13 @@ body {
   font-weight: 700;
   transition: transform 0.1s, box-shadow 0.1s;
   display: flex; align-items: center; justify-content: center;
+  &:hover {
+    transform: scale(1.08);
+  }
+  &.selected {
+    box-shadow: 0 0 0 2px #fff;
+  }
 }
-.priority-btn:hover {
-  transform: scale(1.08);
-  }
-.priority-btn.selected {
-  box-shadow: 0 0 0 2px #fff;
-  }
 /* Progress popup */
 .progress-body {
   padding: 14px 14px 12px;
@@ -585,10 +581,10 @@ body {
   font-weight: 700;
   text-align: right;
   outline: none;
-}
-.progress-num-input:focus {
-  border-color: var(--accent);
+  &:focus {
+    border-color: var(--accent);
   }
+}
 .progress-slider {
   width: 100%;
   accent-color: var(--accent);
@@ -618,10 +614,10 @@ body {
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-}
-.progress-save-btn:hover {
-  background: var(--accent-hover);
+  &:hover {
+    background: var(--accent-hover);
   }
+}
 /* DueDate popup */
 .duedate-body {
   padding: 12px;
@@ -640,10 +636,10 @@ body {
   outline: none;
   width: 100%;
   color-scheme: dark;
-}
-.duedate-input:focus {
-  border-color: var(--accent);
+  &:focus {
+    border-color: var(--accent);
   }
+}
 .duedate-btns {
   display: flex;
   gap: 7px;
@@ -658,12 +654,12 @@ body {
   cursor: pointer;
   font-family: inherit;
   font-size: 12px;
-}
-.duedate-clear-btn:hover {
-  background: var(--bg-3);
-  color: var(--red);
-  border-color: var(--red);
+  &:hover {
+    background: var(--bg-3);
+    color: var(--red);
+    border-color: var(--red);
   }
+}
 .duedate-save-btn {
   padding: 6px 14px;
   background: var(--accent);
@@ -674,11 +670,10 @@ body {
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-}
-.duedate-save-btn:hover {
-  background: var(--accent-hover);
+  &:hover {
+    background: var(--accent-hover);
   }
-
+}
 /* Reminder popup */
 .reminder-body {
   padding: 12px;
@@ -737,10 +732,10 @@ body {
   font-size: 15px;
   line-height: 1;
   padding: 1px 3px;
+  &:hover {
+    color: var(--red);
   }
-.reminder-remove-btn:hover {
-  color: var(--red);
-  }
+}
 .reminder-empty {
   color: var(--text-2);
   font-size: 12px;
@@ -755,12 +750,11 @@ body {
   font-family: inherit;
   font-size: 12px;
   padding: 0;
+  &:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
   }
-.reminder-enable-btn:hover {
-  color: var(--accent-hover);
-  text-decoration: underline;
-  }
-
+}
 /* Markdown editor */
 .md-area {
   flex: 1;
@@ -849,11 +843,11 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.15s;
-}
-.modal-backdrop.open {
-  opacity: 1;
-  pointer-events: all;
-  .modal { transform: translateY(0); }
+  &.open {
+    opacity: 1;
+    pointer-events: all;
+    .modal { transform: translateY(0); }
+  }
 }
 .modal {
   background: var(--bg-2);
@@ -885,12 +879,11 @@ body {
   cursor: pointer; border-radius: 6px;
   display: flex; align-items: center; justify-content: center;
   transition: background var(--transition);
-}
-.modal-close-btn:hover {
-  background: var(--bg-4);
-  color: var(--text-0);
+  &:hover {
+    background: var(--bg-4);
+    color: var(--text-0);
   }
-
+}
 .modal-body {
   padding: 20px 22px;
   display: flex;
@@ -1000,18 +993,17 @@ body {
   opacity: 0;
   transition: all 0.2s;
   pointer-events: none;
+  &.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  &.success {
+    border-left: 3px solid var(--green);
+  }
+  &.error   {
+    border-left: 3px solid var(--red);
+  }
 }
-.toast.show {
-  transform: translateY(0);
-  opacity: 1;
-  }
-.toast.success {
-  border-left: 3px solid var(--green);
-  }
-.toast.error   {
-  border-left: 3px solid var(--red);
-  }
-
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -1023,11 +1015,10 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--bg-4);
   border-radius: 3px;
+  &:hover {
+    background: var(--text-2);
   }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-2);
-  }
-
+}
 @media (max-width: 640px) {
   .md-area { grid-template-columns: 1fr; }
   .md-pane + .md-pane { display: none; }
