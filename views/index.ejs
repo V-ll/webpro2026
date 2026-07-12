@@ -1111,31 +1111,27 @@
 
   // ===== Markdown Editor =====
   function initMarkdownEditor() {
-    MDForceRender();
-    const input = document.getElementById('mdInput');
-    const preview = document.getElementById('mdPreview');
-    if (!input || !preview) return;
-    const render = () => { 
-      preview.innerHTML = parseMarkdown(input.value); 
-      hljs.highlightAll();
-      if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise();
-      }
-    };
-
     let saveTimer;
-    let renderTimer;
     input.addEventListener('input', () => {
       MDForceRender();
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {saveDescription(input.value);}, 1500);
     });
-    render();
+    MDForceRender();
   }
   function MDForceRender(){
+    const input = document.getElementById('mdInput');
+    const preview = document.getElementById('mdPreview');
+    if (!input || !preview) return;
     let renderTimer;
     clearTimeout(renderTimer);
-    renderTimer = setTimeout(() => render(), 100);
+    renderTimer = setTimeout(() =>{
+      preview.innerHTML = parseMarkdown(input.value); 
+      hljs.highlightAll();
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+    }, 100);
   }
 
   async function saveDescription(desc) {
