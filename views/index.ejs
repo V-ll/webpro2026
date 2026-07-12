@@ -125,15 +125,15 @@
             <div class="meta-chip meta-popup-anchor" id="chip-duedate">
               <span class="meta-chip-label">期限</span>
               <span class="meta-chip-value" id="taskDueDate" onclick="openDueDatePopup()" aria-haspopup="true">
-                <%function getTaskDue(s){%>
-                <%let a={%> 
-                <% month:'long',%>
-                      <% day:'numeric',%>
-                      <% hour:'2-digit',%>
-                      <% minute:'2-digit' %>
-                      <% }%>
-                      <% return new Date(s).toLocaleDateString('ja-JP',  )%>
-                      <% }%>
+                <% function getTaskDue(s){ %>
+                  <% let a={ %> 
+                    <% month:'long', %>
+                    <% day:'numeric', %>
+                    <% hour:'2-digit', %>
+                    <% minute:'2-digit' %>
+                  <% } %>
+                  <% return new Date(s).toLocaleDateString('ja-JP', a) %>
+                <% } %>
                 <% if (tasks[0].dueDate) { %>
                   <%= getTaskDue(tasks[0].dueDate) %>
                 <% } else { %>未設定<% } %>
