@@ -125,6 +125,11 @@
             <div class="meta-chip meta-popup-anchor" id="chip-duedate">
               <span class="meta-chip-label">期限</span>
               <span class="meta-chip-value" id="taskDueDate" onclick="openDueDatePopup()" aria-haspopup="true">
+                <script>
+                  function getTaskDue(s){
+                    return new Date(s).toLocaleDateString('ja-JP', { month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' } )
+                  }
+                </script>
                 <% if (tasks[0].dueDate) { %>
                   <%= getTaskDue(tasks[0].dueDate) %>
                 <% } else { %>未設定<% } %>
@@ -388,9 +393,6 @@
 
   function zeroPadding(s) {
     return ('0' + s).slice(-2);
-  }
-  function getTaskDue(s){
-    return new Date(s).toLocaleDateString('ja-JP', { month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' } )
   }
   // ===== State =====
   const STATE = {
