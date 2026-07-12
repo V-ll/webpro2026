@@ -1144,16 +1144,14 @@
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('タスクリマインダー', { body: task.title });
     }
+    await deleteReminder(reminder.id);
   }
   function checkReminderSchedules() {
     const now = Date.now();
     STATE.tasks.forEach(task => {
       (task.reminders || []).forEach(reminder => {
         const reminderTime = getReminderTime(task, reminder);
-        if (reminderTime && now >= reminderTime) {
-          fireReminder(task, reminder, reminderTime);
-          await deleteReminder(reminder.id);
-        }
+        if (reminderTime && now >= reminderTime) fireReminder(task, reminder, reminderTime);
       });
     });
   }
