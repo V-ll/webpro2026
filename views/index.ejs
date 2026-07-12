@@ -357,7 +357,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  function toISOStringWithTimezone(date: Date): string {
+  function toISOStringWithTimezone(date) {
     const year = date.getFullYear().toString();
     const month = zeroPadding((date.getMonth() + 1).toString());
     const day = zeroPadding(date.getDate().toString());
