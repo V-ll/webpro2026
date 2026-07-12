@@ -1130,11 +1130,15 @@
     clearTimeout(renderTimer);
     renderTimer = setTimeout(() =>{
       preview.innerHTML = parseMarkdown(input.value); 
-      hljs.highlightAll();
+      if (hljs.highlightAll){
+        hljs.highlightAll();
+      }else{
+        console.log('hljs.highlightAll not found');
+      }
       if (window.MathJax && window.MathJax.typesetPromise) {
         window.MathJax.typesetPromise();
       }
-    }, 100);
+    }, 200);
   }
 
   async function saveDescription(desc) {
