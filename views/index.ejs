@@ -1111,6 +1111,9 @@
 
   // ===== Markdown Editor =====
   function initMarkdownEditor() {
+    const input = document.getElementById('mdInput');
+    const preview = document.getElementById('mdPreview');
+    if (!input || !preview) return;
     let saveTimer;
     input.addEventListener('input', () => {
       MDForceRender();
@@ -1142,7 +1145,9 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ description: desc })
       });
-    } catch(e) { /* silent */ }
+    } catch(e) {
+      console.log('saveDescription failed:'+e)
+    }
   }
 
   function parseMarkdown(text) {
