@@ -577,6 +577,19 @@ body {
 }
 .duedate-save-btn:hover { background: var(--accent-hover); }
 
+/* Reminder popup */
+.reminder-body { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.reminder-add-row { display: flex; gap: 7px; }
+.reminder-select { flex: 1; background: var(--bg-3); border: 1px solid var(--border-light); border-radius: 6px; color: var(--text-0); padding: 7px 9px; font-family: inherit; font-size: 12px; outline: none; }
+.reminder-select:focus { border-color: var(--accent); }
+.reminder-custom-row { display: flex; flex-direction: column; gap: 7px; }
+.reminder-custom-label { font-size: 11px; color: var(--text-2); }
+.reminder-list { display: flex; flex-direction: column; gap: 6px; }
+.reminder-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--bg-3); border-radius: 6px; padding: 7px 9px; color: var(--text-1); font-size: 12px; }
+.reminder-remove-btn { border: none; background: transparent; color: var(--text-2); cursor: pointer; font-size: 15px; line-height: 1; padding: 1px 3px; }
+.reminder-remove-btn:hover { color: var(--red); }
+.reminder-empty { color: var(--text-2); font-size: 12px; padding: 3px 0; }
+
 /* Markdown editor */
 .md-area {
   flex: 1;

@@ -131,6 +131,12 @@
                 <% } else { %>未設定<% } %>
               </span>
             </div>
+            <div class="meta-chip meta-popup-anchor" id="chip-reminder">
+              <span class="meta-chip-label">リマインド</span>
+              <span class="meta-chip-value" id="taskReminder" onclick="openReminderPopup()" aria-haspopup="true">
+                <%= tasks[0].reminders?.length ? `${tasks[0].reminders.length}件` : 'なし' %>
+              </span>
+            </div>
             <button class="task-delete-btn" id="taskDeleteBtn" type="button" onclick="deleteCurrentTask()" aria-label="このタスクを削除">
               削除
             </button>
@@ -309,6 +315,33 @@
   </div>
 </div>
 
+<!-- Reminder Popup -->
+<div class="meta-popup" id="popup-reminder" style="display:none" role="dialog" aria-label="リマインダー設定">
+  <div class="meta-popup-header">リマインダー</div>
+  <div class="reminder-body">
+    <div class="reminder-add-row">
+      <select class="reminder-select" id="reminderPresetInput" aria-label="期限前のリマインダー">
+        <option value="30min">30分前</option>
+        <option value="1hour">1時間前</option>
+        <option value="3hours">3時間前</option>
+        <option value="12hours">12時間前</option>
+        <option value="1day">1日前</option>
+        <option value="3days">3日前</option>
+        <option value="1week">1週間前</option>
+      </select>
+      <button class="duedate-save-btn" onclick="addPresetReminder()">追加</button>
+    </div>
+    <div class="reminder-custom-row">
+      <span class="reminder-custom-label">日時を指定（時計）</span>
+      <div class="reminder-add-row">
+        <input class="duedate-input" id="reminderCustomInput" type="datetime-local" aria-label="リマインダー日時">
+        <button class="duedate-save-btn" onclick="addCustomReminder()">追加</button>
+      </div>
+    </div>
+    <div class="reminder-list" id="reminderList"></div>
+  </div>
+</div>
+
 <!-- DueDate Popup -->
 <div class="meta-popup" id="popup-duedate" style="display:none" role="dialog" aria-label="期限設定">
   <div class="meta-popup-header">期限</div>
@@ -394,6 +427,10 @@
               <span class="meta-chip-label">期限</span>
               <span class="meta-chip-value" id="taskDueDate"
                     onclick="openDueDatePopup()" aria-haspopup="true">${dueDateStr}</span>
+            </div>
+            <div class="meta-chip meta-popup-anchor" id="chip-reminder">
+              <span class="meta-chip-label">リマインド</span>
+              <span class="meta-chip-value" id="taskReminder" onclick="openReminderPopup()" aria-haspopup="true">${task.reminders?.length ? `${task.reminders.length}件` : 'なし'}</span>
             </div>
             <button class="task-delete-btn" id="taskDeleteBtn" type="button" onclick="deleteCurrentTask()" aria-label="このタスクを削除">削除</button>
           </div>
@@ -765,7 +802,7 @@
   }
 
   // ===== Meta Popup Engine =====
-  const POPUP_IDS = ['popup-status','popup-priority','popup-progress','popup-duedate'];
+  const POPUP_IDS = ['popup-status','popup-priority','popup-progress','popup-duedate','popup-reminder'];
   let _activePopup = null;
 
   function openPopup(id, anchorId) {
@@ -1003,6 +1040,89 @@
       closeAllPopups();
       showToast(val ? '期限を設定しました' : '期限をクリアしました', 'success');
     } catch { showToast('更新に失敗しました', 'error'); }
+  }
+
+  // ── Reminder Popup ──
+  const REMINDER_LABELS = {
+    '30min': '30分前', '1hour': '1時間前', '3hours': '3時間前',
+    '12hours': '12時間前', '1day': '1日前', '3days': '3日前', '1week': '1週間前'
+  };
+
+  function openReminderPopup() {
+    renderReminderList();
+    openPopup('popup-reminder', 'chip-reminder');
+  }
+
+  function renderReminderList() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    const reminders = task?.reminders || [];
+    const list = document.getElementById('reminderList');
+    if (!list) return;
+    if (!reminders.length) {
+      list.innerHTML = '<div class="reminder-empty">リマインダーは未設定です</div>';
+      return;
+    }
+    list.innerHTML = reminders.map(reminder => {
+      const label = reminder.reminderType === 'custom'
+        ? new Date(reminder.customTime).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : REMINDER_LABELS[reminder.reminderType];
+      return `<div class="reminder-item"><span>${label}</span><button class="reminder-remove-btn" type="button" onclick="deleteReminder(${reminder.id})" aria-label="リマインダーを削除">✕</button></div>`;
+    }).join('');
+  }
+
+  function updateReminderChip() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    const chip = document.getElementById('taskReminder');
+    if (chip) chip.textContent = task?.reminders?.length ? `${task.reminders.length}件` : 'なし';
+  }
+
+  async function addPresetReminder() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    if (!task?.dueDate) {
+      showToast('期限を設定してから追加してください', 'error');
+      return;
+    }
+    await addReminder(document.getElementById('reminderPresetInput').value);
+  }
+
+  async function addCustomReminder() {
+    const customTime = document.getElementById('reminderCustomInput').value;
+    if (!customTime) {
+      showToast('日時を指定してください', 'error');
+      return;
+    }
+    await addReminder('custom', customTime);
+  }
+
+  async function addReminder(reminderType, customTime = null) {
+    if (!STATE.currentTaskId) return;
+    try {
+      const resp = await fetch(`/api/tasks/${STATE.currentTaskId}/reminders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reminderType, customTime })
+      });
+      const reminder = await resp.json();
+      if (!resp.ok) throw new Error(reminder.error || 'リマインダーの追加に失敗しました');
+      const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+      if (task) task.reminders = [...(task.reminders || []), reminder];
+      document.getElementById('reminderCustomInput').value = '';
+      renderReminderList();
+      updateReminderChip();
+      showToast('リマインダーを追加しました', 'success');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function deleteReminder(reminderId) {
+    try {
+      const resp = await fetch(`/api/reminders/${reminderId}`, { method: 'DELETE' });
+      if (!resp.ok) throw new Error('リマインダーの削除に失敗しました');
+      const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+      if (task) task.reminders = (task.reminders || []).filter(reminder => reminder.id !== reminderId);
+      renderReminderList();
+      updateReminderChip();
+      showToast('リマインダーを削除しました', 'success');
+    } catch (e) { showToast(e.message, 'error'); }
   }
 
   // ── Task deletion ──
