@@ -1087,6 +1087,8 @@
 
   async function addCustomReminder() {
     const customTime = document.getElementById('reminderCustomInput').value;
+    console.log('this is customTime.');
+    console.log(customTime);
     if (!customTime) {
       showToast('日時を指定してください', 'error');
       return;
