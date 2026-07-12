@@ -901,7 +901,10 @@
       const t = STATE.tasks.find(t => t.id === STATE.currentTaskId);
       if (t) t.priority = priority;
       const chip = document.getElementById('taskPriority');
-      if (chip) chip.textContent = priority;
+      if (chip) {
+        chip.textContent = priority;
+        chip.style.backgroundColor=PRIORITY_LABELS[priority];
+      }
       closeAllPopups();
       showToast('優先度を更新しました', 'success');
     } catch { showToast('更新に失敗しました', 'error'); }
