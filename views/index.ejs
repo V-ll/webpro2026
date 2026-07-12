@@ -106,7 +106,7 @@
             <div class="meta-chip meta-popup-anchor" id="chip-priority">
               <span class="meta-chip-label">優先度</span>
               <span class="meta-chip-value" id="taskPriority"
-                onclick="openPriorityPopup()" aria-haspopup="true" style="background:<%- include('PRIORITY_COLORS.ejs')[tasks[0].priority]%>">
+                onclick="openPriorityPopup()" aria-haspopup="true" style="background:<%= include('fuga')%>">
                 <%= tasks[0].priority %>
                 <%- include('PRIORITY_COLORS.ejs')%>
               </span>
