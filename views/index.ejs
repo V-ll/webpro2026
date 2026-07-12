@@ -20,10 +20,10 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <!-- マークダウンパーサ -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js" async onload="initMarkdownEditor()"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js" async onload="MDForceRender()"></script>
   <!-- ハイライト -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js" async></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1110,13 +1110,15 @@
   }
 
   // ===== Markdown Editor =====
+  function MDForceRender(){
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(() => render(), 100);
+  }
   function initMarkdownEditor() {
+    MDForceRender();
     const input = document.getElementById('mdInput');
     const preview = document.getElementById('mdPreview');
     if (!input || !preview) return;
-
-    let saveTimer;
-    let renderTimer;
     const render = () => { 
       preview.innerHTML = parseMarkdown(input.value); 
       hljs.highlightAll();
@@ -1124,9 +1126,11 @@
         window.MathJax.typesetPromise();
       }
     };
+
+    let saveTimer;
+    let renderTimer;
     input.addEventListener('input', () => {
-      clearTimeout(renderTimer);
-      renderTimer = setTimeout(() => render(), 100);
+      MDForceRender();
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {saveDescription(input.value);}, 1500);
     });
