@@ -106,8 +106,8 @@
             <div class="meta-chip meta-popup-anchor" id="chip-priority">
               <span class="meta-chip-label">優先度</span>
               <span class="meta-chip-value" id="taskPriority"
-                    onclick="openPriorityPopup()" aria-haspopup="true">
-                <%= tasks[0].priority %>hofehofehofe
+                onclick="openPriorityPopup()" aria-haspopup="true" style="background:<%= PRIORITY_COLORS[tasks[0].priority]%>">
+                <%= tasks[0].priority %>
               </span>
             </div>
             <div class="meta-chip meta-popup-anchor" id="chip-progress">
@@ -422,7 +422,8 @@
             <div class="meta-chip meta-popup-anchor" id="chip-priority">
               <span class="meta-chip-label">優先度</span>
               <span class="meta-chip-value" id="taskPriority"
-                    onclick="openPriorityPopup()" aria-haspopup="true">${task.priority}fugafugafuga</span>
+                    onclick="openPriorityPopup()" aria-haspopup="true"
+                    style="background:<%= PRIORITY_COLORS[tasks[0].priority]%>">${task.priority}</span>
             </div>
             <div class="meta-chip meta-popup-anchor" id="chip-progress">
               <span class="meta-chip-label">進捗</span>
