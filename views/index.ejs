@@ -1056,6 +1056,7 @@
   function renderReminderList() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     const reminders = task?.reminders || [];
+    console.log(reminders);
     const list = document.getElementById('reminderList');
     if (!list) return;
     if (!reminders.length) {
