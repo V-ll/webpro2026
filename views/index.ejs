@@ -1150,7 +1150,10 @@
     STATE.tasks.forEach(task => {
       (task.reminders || []).forEach(reminder => {
         const reminderTime = getReminderTime(task, reminder);
-        if (reminderTime && now >= reminderTime) fireReminder(task, reminder, reminderTime);
+        if (reminderTime && now >= reminderTime) {
+          fireReminder(task, reminder, reminderTime);
+          await deleteReminder(reminder.id);
+        }
       });
     });
   }
