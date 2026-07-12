@@ -40,9 +40,12 @@ app.use(express.static(path.join(__dirname, "../public")));
 app.get("/", async (req, res) => {
   try {
     log("GET / - Loading dashboard");
-    
-    // デモ用：最初のワークスペースを取得
+
+    const requestedWorkspaceId = Number(req.query.workspaceId);
     const workspace = await prisma.workspace.findFirst({
+      ...(Number.isInteger(requestedWorkspaceId) && requestedWorkspaceId > 0
+        ? { where: { id: requestedWorkspaceId } }
+        : {}),
       include: {
         members: true,
         lists: {
@@ -76,6 +79,41 @@ app.get("/", async (req, res) => {
 ERROR: ${errorMessage}
 STACK: ${errorStack}
     </pre>`);
+  }
+});
+
+// ルート：API - ワークスペース作成
+app.post("/api/workspaces", async (req, res) => {
+  try {
+    const name = typeof req.body.name === "string" ? req.body.name.trim() : "";
+    const description = typeof req.body.description === "string" ? req.body.description.trim() : "";
+    if (!name) {
+      res.status(400).json({ error: "ワークスペース名を入力してください" });
+      return;
+    }
+
+    let user = await prisma.user.findFirst();
+    if (!user) {
+      user = await prisma.user.create({
+        data: { email: "default@example.com", name: "ユーザー" }
+      });
+    }
+
+    const workspace = await prisma.workspace.create({
+      data: {
+        name,
+        description: description || null,
+        members: { create: { userId: user.id, role: "owner" } },
+        lists: { create: { name: "タスク", color: "#3b82f6" } }
+      },
+      include: { lists: true }
+    });
+
+    log(`POST /api/workspaces - Created: ${workspace.id}`);
+    res.status(201).json(workspace);
+  } catch (error) {
+    log("POST /api/workspaces - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
   }
 });
 
