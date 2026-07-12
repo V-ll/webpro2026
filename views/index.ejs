@@ -6,8 +6,7 @@
   <title>Task Manager<% if (workspace) { %> - <%= workspace.name %><% } %></title>
   <meta name="description" content="軽量・高速なタスク管理ツール。マイルストーン・ワークスペース・リマインダー対応。">
   <!-- 数式(mathjax) -->
-
-    <script src="https://jsdelivr.net"></script>
+    <script src="https://jsdelivr.net" async></script>
     <script>
       window.MathJax = {
         tex: {
@@ -19,11 +18,11 @@
         }
       };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script> -->
   <!-- マークダウンパーサ -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js" async></script>
   <!-- ハイライト -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js" async></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
