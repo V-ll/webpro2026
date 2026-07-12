@@ -1092,12 +1092,14 @@
     if (!input || !preview) return;
 
     let saveTimer;
+    let renderTimer;
     const render = () => { preview.innerHTML = parseMarkdown(input.value); };
-    hljs.highlightAll();
     input.addEventListener('input', () => {
       render();
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => saveDescription(input.value), 1500);
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(() => hljs.highlightAll(), 100);
     });
     render();
   }
