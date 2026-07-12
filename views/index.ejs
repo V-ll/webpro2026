@@ -1131,8 +1131,8 @@
       .replace(/^- (.+)$/gm,'<li>$1</li>')
       .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
       .replace(/---/g,'<hr>')
-      <!-- .replace(/\n{2,}/g,'</p><p>') -->
-      .replace(/\n/g,'</p><p>');
+      .replace(/\n{2,}/g,'</p><p>')
+      .replace(/\n/g,'<br>');
     return '<p>' + h + '</p>';
   }
 
