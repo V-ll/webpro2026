@@ -1110,10 +1110,6 @@
   }
 
   // ===== Markdown Editor =====
-  function MDForceRender(){
-    clearTimeout(renderTimer);
-    renderTimer = setTimeout(() => render(), 100);
-  }
   function initMarkdownEditor() {
     MDForceRender();
     const input = document.getElementById('mdInput');
@@ -1135,6 +1131,11 @@
       saveTimer = setTimeout(() => {saveDescription(input.value);}, 1500);
     });
     render();
+  }
+  function MDForceRender(){
+    let renderTimer;
+    clearTimeout(renderTimer);
+    renderTimer = setTimeout(() => render(), 100);
   }
 
   async function saveDescription(desc) {
