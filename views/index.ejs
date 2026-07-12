@@ -1100,9 +1100,7 @@
     let renderTimer;
     const render = () => { 
       preview.innerHTML = parseMarkdown(input.value); 
-      if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise();
-      }
+      window.MathJax.typesetPromise();
     };
     input.addEventListener('input', () => {
       clearTimeout(renderTimer);
@@ -1128,9 +1126,8 @@
   function parseMarkdown(text) {
     if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
     let h=marked.parse(text);
-
-    // 4. MathJaxによる数式の再レンダリング
-    return '<p>' + h + '</p>';
+    return h;
+    <!-- return '<p>' + h + '</p>'; -->
   }
 
   // ===== Modal =====
