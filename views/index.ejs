@@ -376,6 +376,27 @@
     .meta-chip-value:hover { background: var(--bg-3); }
     .meta-chip-value.active { background: var(--bg-4); outline: 2px solid var(--accent); }
 
+    .task-delete-btn {
+      margin-left: auto;
+      align-self: flex-end;
+      padding: 6px 10px;
+      border: 1px solid rgba(239,83,80,0.45);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--red);
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      transition: background var(--transition), color var(--transition), border-color var(--transition);
+    }
+    .task-delete-btn:hover:not(:disabled) {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+    .task-delete-btn:disabled { cursor: wait; opacity: 0.65; }
+
 
     /* ────── Meta Popup ────── */
     .meta-popup-anchor { position: relative; }
@@ -831,6 +852,9 @@
                 <% } else { %>未設定<% } %>
               </span>
             </div>
+            <button class="task-delete-btn" id="taskDeleteBtn" type="button" onclick="deleteCurrentTask()" aria-label="このタスクを削除">
+              削除
+            </button>
           </div>
         </div>
         <div class="md-area">
@@ -1039,6 +1063,7 @@
               <span class="meta-chip-value" id="taskDueDate"
                     onclick="openDueDatePopup()" aria-haspopup="true">${dueDateStr}</span>
             </div>
+            <button class="task-delete-btn" id="taskDeleteBtn" type="button" onclick="deleteCurrentTask()" aria-label="このタスクを削除">削除</button>
           </div>
         </div>
         <div class="md-area">
@@ -1507,6 +1532,32 @@
       closeAllPopups();
       showToast(val ? '期限を設定しました' : '期限をクリアしました', 'success');
     } catch { showToast('更新に失敗しました', 'error'); }
+  }
+
+  // ── Task deletion ──
+  async function deleteCurrentTask() {
+    const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    if (!task) return;
+
+    if (!window.confirm(`「${task.title}」を削除しますか？`)) return;
+
+    const btn = document.getElementById('taskDeleteBtn');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '削除中…';
+    }
+
+    try {
+      const resp = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
+      if (!resp.ok) throw new Error(await resp.text());
+      window.location.reload();
+    } catch (e) {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = '削除';
+      }
+      showToast('削除に失敗しました', 'error');
+    }
   }
 
   // ===== Toast =====
