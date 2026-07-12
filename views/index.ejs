@@ -1113,15 +1113,15 @@
     const render = () => { 
       preview.innerHTML = parseMarkdown(input.value); 
       hljs.highlightAll();
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
     };
     input.addEventListener('input', () => {
       clearTimeout(renderTimer);
       renderTimer = setTimeout(() => render(), 100);
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {saveDescription(input.value);}, 1500);
-      if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise();
-      }
     });
     render();
   }
