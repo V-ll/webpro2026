@@ -6,11 +6,23 @@
   <title>Task Manager<% if (workspace) { %> - <%= workspace.name %><% } %></title>
   <meta name="description" content="軽量・高速なタスク管理ツール。マイルストーン・ワークスペース・リマインダー対応。">
   <!-- 数式(mathjax) -->
-  <script src="https://jsdelivr.net" async></script>
 
+    <script src="https://jsdelivr.net"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']], // インライン数式用
+                displayMath: [['$$', '$$'], ['\\[', '\\]']] // ブロック数式用
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <!-- マークダウンパーサ -->
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-  <!-- 木の下2行を追加 -->
+  <!-- ハイライト -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1100,7 +1112,9 @@
     let renderTimer;
     const render = () => { 
       preview.innerHTML = parseMarkdown(input.value); 
-      window.MathJax.typesetPromise();
+      if (window.MathJax && window.MathJax.typesetPromise) {
+          window.MathJax.typesetPromise();
+      }
     };
     input.addEventListener('input', () => {
       clearTimeout(renderTimer);
