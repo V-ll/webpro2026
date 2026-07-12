@@ -1125,7 +1125,7 @@
     }
     console.log(customTime);
     console.log(toISOStringWithTimezone(new Date(customTime)));
-    await addReminder('custom', customTime);
+    await addReminder('custom', toISOStringWithTimezone(new Date(customTime)));
   }
 
   async function addReminder(reminderType, customTime = null) {
