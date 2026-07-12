@@ -117,6 +117,50 @@ app.post("/api/workspaces", async (req, res) => {
   }
 });
 
+// ルート：API - ワークスペース更新
+app.put("/api/workspaces/:workspaceId", async (req, res) => {
+  try {
+    const workspaceId = Number(req.params.workspaceId);
+    const name = typeof req.body.name === "string" ? req.body.name.trim() : "";
+    const description = typeof req.body.description === "string" ? req.body.description.trim() : "";
+    if (!Number.isInteger(workspaceId) || workspaceId <= 0) {
+      res.status(400).json({ error: "無効なワークスペースです" });
+      return;
+    }
+    if (!name) {
+      res.status(400).json({ error: "ワークスペース名を入力してください" });
+      return;
+    }
+
+    const workspace = await prisma.workspace.update({
+      where: { id: workspaceId },
+      data: { name, description: description || null }
+    });
+    res.json(workspace);
+  } catch (error) {
+    log("PUT /api/workspaces/:workspaceId - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
+// ルート：API - ワークスペース削除
+app.delete("/api/workspaces/:workspaceId", async (req, res) => {
+  try {
+    const workspaceId = Number(req.params.workspaceId);
+    if (!Number.isInteger(workspaceId) || workspaceId <= 0) {
+      res.status(400).json({ error: "無効なワークスペースです" });
+      return;
+    }
+
+    await prisma.workspace.delete({ where: { id: workspaceId } });
+    log(`DELETE /api/workspaces/${workspaceId}`);
+    res.status(204).send();
+  } catch (error) {
+    log("DELETE /api/workspaces/:workspaceId - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
 // ルート：API - ワークスペース一覧取得
 app.get("/api/workspaces", async (req, res) => {
   try {

@@ -134,13 +134,22 @@
       flex-shrink: 0;
     }
     .panel-workspace-name {
+      border: none;
+      background: transparent;
       font-weight: 600;
       font-size: 13px;
       color: var(--text-0);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: left;
+      padding: 4px 6px;
+      margin-left: -6px;
+      border-radius: 6px;
     }
+    .panel-workspace-name:hover { background: var(--bg-3); }
     .panel-header-actions { display: flex; align-items: center; gap: 4px; }
     .workspace-add-btn {
       width: 26px;
@@ -733,6 +742,8 @@
     .btn-primary { background: var(--accent); color: #fff; }
     .btn-primary:hover { background: var(--accent-hover); }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-danger { margin-right: auto; background: transparent; color: var(--red); border: 1px solid rgba(239,83,80,0.45); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
 
     /* Toast */
     .toast {
@@ -783,9 +794,9 @@
   <!-- ── Side Panel ── -->
   <aside class="side-panel" id="sidePanel" aria-label="タスクパネル">
     <div class="panel-header">
-      <span class="panel-workspace-name" id="workspaceName">
+      <button class="panel-workspace-name" id="workspaceName" type="button" onclick="openWorkspaceManagerModal()" title="ワークスペースを管理">
         <%= workspace?.name || 'ワークスペース' %>
-      </span>
+      </button>
       <div class="panel-header-actions">
         <button class="workspace-add-btn" type="button" onclick="openWorkspaceModal()" title="ワークスペースを追加" aria-label="ワークスペースを追加">＋</button>
         <button class="panel-close" onclick="togglePanel()" title="閉じる" aria-label="パネルを閉じる">✕</button>
@@ -956,6 +967,35 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
       <button class="btn btn-primary" id="createBtn" onclick="createTask()">作成</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Workspace Manager Modal ── -->
+<div class="modal-backdrop" id="workspaceManagerModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceManagerModalTitle">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title" id="workspaceManagerModalTitle">ワークスペースを管理</span>
+      <button class="modal-close-btn" onclick="closeWorkspaceManagerModal()" aria-label="モーダルを閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label" for="workspaceSelect">ワークスペースを切り替え</label>
+        <select class="form-select" id="workspaceSelect" onchange="switchWorkspace(this.value)"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="editWorkspaceName">ワークスペース名 <span style="color:var(--red)">*</span></label>
+        <input class="form-input" id="editWorkspaceName" type="text" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="editWorkspaceDescription">説明（任意）</label>
+        <input class="form-input" id="editWorkspaceDescription" type="text" autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="deleteWorkspaceBtn" onclick="deleteCurrentWorkspace()">このワークスペースを削除</button>
+      <button class="btn btn-ghost" onclick="closeWorkspaceManagerModal()">キャンセル</button>
+      <button class="btn btn-primary" id="saveWorkspaceBtn" onclick="saveCurrentWorkspace()">保存</button>
     </div>
   </div>
 </div>
@@ -1250,17 +1290,110 @@
     document.getElementById('workspaceModalBackdrop').classList.remove('open');
   }
 
+  async function openWorkspaceManagerModal() {
+    const backdrop = document.getElementById('workspaceManagerModalBackdrop');
+    const select = document.getElementById('workspaceSelect');
+    try {
+      const resp = await fetch('/api/workspaces');
+      if (!resp.ok) throw new Error('ワークスペースの取得に失敗しました');
+      const workspaces = await resp.json();
+      select.replaceChildren();
+      workspaces.forEach(workspace => {
+        const option = document.createElement('option');
+        option.value = workspace.id;
+        option.textContent = workspace.name;
+        option.selected = workspace.id === STATE.workspaceId;
+        select.appendChild(option);
+      });
+      const current = workspaces.find(workspace => workspace.id === STATE.workspaceId);
+      document.getElementById('editWorkspaceName').value = current?.name || '';
+      document.getElementById('editWorkspaceDescription').value = current?.description || '';
+      backdrop.classList.add('open');
+      setTimeout(() => document.getElementById('editWorkspaceName').focus(), 80);
+    } catch (e) {
+      showToast(e.message, 'error');
+    }
+  }
+
+  function closeWorkspaceManagerModal() {
+    document.getElementById('workspaceManagerModalBackdrop').classList.remove('open');
+  }
+
+  function switchWorkspace(workspaceId) {
+    if (Number(workspaceId) !== STATE.workspaceId) {
+      window.location.assign(`/?workspaceId=${workspaceId}`);
+    }
+  }
+
+  async function saveCurrentWorkspace() {
+    if (!STATE.workspaceId) return;
+    const name = document.getElementById('editWorkspaceName').value.trim();
+    const description = document.getElementById('editWorkspaceDescription').value.trim();
+    if (!name) {
+      document.getElementById('editWorkspaceName').focus();
+      showToast('ワークスペース名を入力してください', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('saveWorkspaceBtn');
+    btn.disabled = true;
+    btn.textContent = '保存中...';
+    try {
+      const resp = await fetch(`/api/workspaces/${STATE.workspaceId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'ワークスペースの更新に失敗しました');
+      document.getElementById('workspaceName').textContent = data.name;
+      closeWorkspaceManagerModal();
+      showToast('ワークスペースを更新しました', 'success');
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '保存';
+    }
+  }
+
+  async function deleteCurrentWorkspace() {
+    if (!STATE.workspaceId) return;
+    const name = document.getElementById('editWorkspaceName').value || 'このワークスペース';
+    if (!window.confirm(`「${name}」を削除しますか？\n含まれるリストとタスクも削除され、この操作は元に戻せません。`)) return;
+
+    const btn = document.getElementById('deleteWorkspaceBtn');
+    btn.disabled = true;
+    btn.textContent = '削除中...';
+    try {
+      const resp = await fetch(`/api/workspaces/${STATE.workspaceId}`, { method: 'DELETE' });
+      if (!resp.ok) {
+        const data = await resp.json();
+        throw new Error(data.error || 'ワークスペースの削除に失敗しました');
+      }
+      window.location.assign('/');
+    } catch (e) {
+      showToast(e.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'このワークスペースを削除';
+    }
+  }
+
   document.getElementById('modalBackdrop').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
   document.getElementById('workspaceModalBackdrop').addEventListener('click', function(e) {
     if (e.target === this) closeWorkspaceModal();
   });
+  document.getElementById('workspaceManagerModalBackdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeWorkspaceManagerModal();
+  });
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
       closeWorkspaceModal();
+      closeWorkspaceManagerModal();
     }
   });
 
