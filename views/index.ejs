@@ -6,7 +6,8 @@
   <title>Task Manager<% if (workspace) { %> - <%= workspace.name %><% } %></title>
   <meta name="description" content="軽量・高速なタスク管理ツール。マイルストーン・ワークスペース・リマインダー対応。">
   <!-- 数式(mathjax) -->
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://jsdelivr.net" async></script>
+
   <!-- マークダウンパーサ -->
     <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
   <!-- 木の下2行を追加 -->
@@ -1097,7 +1098,12 @@
 
     let saveTimer;
     let renderTimer;
-    const render = () => { preview.innerHTML = parseMarkdown(input.value); };
+    const render = () => { 
+      preview.innerHTML = parseMarkdown(input.value); 
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+    };
     input.addEventListener('input', () => {
       clearTimeout(renderTimer);
       renderTimer = setTimeout(() => {render();hljs.highlightAll()}, 100);
@@ -1122,6 +1128,8 @@
   function parseMarkdown(text) {
     if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
     let h=marked.parse(text);
+
+    // 4. MathJaxによる数式の再レンダリング
     return '<p>' + h + '</p>';
   }
 
