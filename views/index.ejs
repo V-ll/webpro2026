@@ -1064,7 +1064,7 @@
       showToast('リマインダーを追加しました', 'success');
     } catch (e) { showToast(e.message, 'error'); }
   }
-  async function deleteReminder(reminderId) {
+  async function deleteReminder(reminderId,shouldShowToast=true) {
     try {
       const resp = await fetch(`/api/reminders/${reminderId}`, { method: 'DELETE' });
       if (!resp.ok) throw new Error('リマインダーの削除に失敗しました');
@@ -1072,7 +1072,7 @@
       if (task) task.reminders = (task.reminders || []).filter(reminder => reminder.id !== reminderId);
       renderReminderList();
       updateReminderChip();
-      showToast('リマインダーを削除しました', 'success');
+      if(shouldShowToast) showToast('リマインダーを削除しました', 'success');
     } catch (e) { showToast(e.message, 'error'); }
   }
   // ── Reminder alerts ──
@@ -1144,7 +1144,7 @@
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification('タスクリマインダー', { body: task.title });
     }
-    await deleteReminder(reminder.id);
+    await deleteReminder(reminder.id,false);// リマインダーの通知とかぶらないように削除通知を出さない
   }
   function checkReminderSchedules() {
     const now = Date.now();
