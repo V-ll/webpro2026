@@ -645,6 +645,9 @@ body {
   border-radius: 4px;
   font-size: 12px; 
 }
+.md-preview pre code.hljs{
+  padding:0;
+}
 .md-preview pre { background: var(--bg-3); padding: 6px; border-radius: 6px; overflow-x: auto; margin: 0.8em 0; }
 .md-preview ul, .md-preview ol { padding-left: 1.4em; margin: 0.4em 0; }
 .md-preview a { color: var(--accent); }
