@@ -1087,8 +1087,6 @@
 
   async function addCustomReminder() {
     const customTime = document.getElementById('reminderCustomInput').value;
-    console.log('this is customTime.');
-    console.log(customTime);
     if (!customTime) {
       showToast('日時を指定してください', 'error');
       return;
@@ -1099,6 +1097,7 @@
   async function addReminder(reminderType, customTime = null) {
     if (!STATE.currentTaskId) return;
     try {
+      console.log(JSON.stringify({ reminderType, customTime }));
       const resp = await fetch(`/api/tasks/${STATE.currentTaskId}/reminders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
