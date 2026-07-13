@@ -346,9 +346,9 @@
       btn.textContent = 'このワークスペースを削除';
     }
   }
-  document.getElementById('modalBackdrop').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
+  // document.getElementById('modalBackdrop').addEventListener('click', function(e) {
+  //   if (e.target === this) closeModal();
+  // });
   document.getElementById('workspaceModalBackdrop').addEventListener('click', function(e) {
     if (e.target === this) closeWorkspaceModal();
   });
@@ -1028,7 +1028,7 @@
   </main>
 </div>
 <!-- ── Task Create Modal ── -->
-<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle" onclick="function(e) {if (e.target === this) closeModal();}">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title" id="modalTitle">新規タスク作成</span>
