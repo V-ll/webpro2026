@@ -34,6 +34,30 @@
   // ===== constants =====
   const PRIORITY_COLORS=['#4b4b5e','#3b6ea0','#2e86c1','#d4ac0d','#e67e22','#e74c3c'];
   const PRIORITY_LABELS = ['最低','','','中','','最高'];
+  const STATE = {
+    workspaceId: <%- workspace ? workspace.id : 'null' %>,
+    currentTaskId: <%- (tasks && tasks.length > 0) ? tasks[0].id : 'null' %>,
+    tasks: <%- JSON.stringify(tasks || []) %>,
+    lists: <%- JSON.stringify(lists || []) %>,
+    userId: 1,  // TODO: 認証実装後に差し替え
+    savingTitle: false,
+  };
+  const STATUS_COLORS = {
+    '未着手': '#7a7a8e', '着手中': '#5b7cf7', '凍結': '#f5a623', '完了': '#3ecf8e'
+  };
+  const REMINDER_LABELS = {
+    '30min': '30分前', '1hour': '1時間前', '3hours': '3時間前',
+    '12hours': '12時間前', '1day': '1日前', '3days': '3日前', '1week': '1週間前'
+  };
+  const REMINDER_OFFSETS = {
+    '30min': 30 * 60 * 1000,
+    '1hour': 60 * 60 * 1000,
+    '3hours': 3 * 60 * 60 * 1000,
+    '12hours': 12 * 60 * 60 * 1000,
+    '1day': 24 * 60 * 60 * 1000,
+    '3days': 3 * 24 * 60 * 60 * 1000,
+    '1week': 7 * 24 * 60 * 60 * 1000
+  };
   function toISOStringWithTimezone(date) {
     const year = date.getFullYear().toString();
     const month = zeroPadding((date.getMonth() + 1).toString());
@@ -61,15 +85,6 @@
   function getTaskDue(s){
     return new Date(s).toLocaleDateString('ja-JP', { month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' } )
   }
-  // ===== State =====
-  const STATE = {
-    workspaceId: <%- workspace ? workspace.id : 'null' %>,
-    currentTaskId: <%- (tasks && tasks.length > 0) ? tasks[0].id : 'null' %>,
-    tasks: <%- JSON.stringify(tasks || []) %>,
-    lists: <%- JSON.stringify(lists || []) %>,
-    userId: 1,  // TODO: 認証実装後に差し替え
-    savingTitle: false,
-  };
   // ===== Panel =====
   function togglePanel() {
     const panel = document.getElementById('sidePanel');
@@ -493,9 +508,6 @@
   });
   <!-- document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); }); -->
   // ── Status Popup ──
-  const STATUS_COLORS = {
-    '未着手': '#7a7a8e', '着手中': '#5b7cf7', '凍結': '#f5a623', '完了': '#3ecf8e'
-  };
   let _customStatuses = [];
   function openStatusPopup() {
     renderStatusOptions();
@@ -681,10 +693,6 @@
     } catch { showToast('更新に失敗しました', 'error'); }
   }
   // ── Reminder Popup ──
-  const REMINDER_LABELS = {
-    '30min': '30分前', '1hour': '1時間前', '3hours': '3時間前',
-    '12hours': '12時間前', '1day': '1日前', '3days': '3日前', '1week': '1週間前'
-  };
   function openReminderPopup() {
     renderReminderList();
     openPopup('popup-reminder', 'chip-reminder');
@@ -756,15 +764,6 @@
     } catch (e) { showToast(e.message, 'error'); }
   }
   // ── Reminder alerts ──
-  const REMINDER_OFFSETS = {
-    '30min': 30 * 60 * 1000,
-    '1hour': 60 * 60 * 1000,
-    '3hours': 3 * 60 * 60 * 1000,
-    '12hours': 12 * 60 * 60 * 1000,
-    '1day': 24 * 60 * 60 * 1000,
-    '3days': 3 * 24 * 60 * 60 * 1000,
-    '1week': 7 * 24 * 60 * 60 * 1000
-  };
   let reminderAudioContext;
   async function getReminderAudioContext() {
     if (!window.AudioContext && !window.webkitAudioContext) return null;
