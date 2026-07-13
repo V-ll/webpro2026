@@ -86,6 +86,9 @@
   </aside>
   <!-- ── Main Area ── -->
   <main class="main-area" id="mainArea">
+    <% if (workspace && tasks && tasks.length > 0) { %>
+    <script >selectTask(<%= tasks[0].id%>)</script>
+    <% } %>
     <!-- <% if (workspace && tasks && tasks.length > 0) { %> -->
     <!--   <!-- タスクが選択されたら JS で内容差し替え --> -->
     <!--   <div class="task-editor" id="taskEditor"> -->
