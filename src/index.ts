@@ -6,9 +6,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { Parser, HtmlRenderer } from 'commonmark';//実験
 
-console.log(html); 
-// 出力: <p><em>Hello</em> <strong>World</strong></p>
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
