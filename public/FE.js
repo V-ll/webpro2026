@@ -438,15 +438,14 @@ function closeAllPopups() {
 // Close popup on outside click
 document.addEventListener('click', e => {
   if (!_activePopup) return;
-  const popup = document.getElementById(_activePopup);
+  // const popup = document.getElementById(_activePopup);
   const anchors = document.querySelectorAll('.meta-popup-anchor');
   let inside = false;
   anchors.forEach(a => { if (a.contains(e.target)) inside = true; });
   if (!inside) closeAllPopups();
 });
-< !--document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); }); -->
-  // ── Status Popup ──
-  let _customStatuses = [];
+// ── Status Popup ──
+let _customStatuses = [];
 function openStatusPopup() {
   renderStatusOptions();
   openPopup('popup-status', 'chip-status');
