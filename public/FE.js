@@ -148,6 +148,35 @@ async function commitTitle() {
   }
 }
 // ===== Markdown Editor =====
+function getCursorLinePos(pos, text) {
+  const lines = text.split("\n");
+  const charCounts = lines.map((line) => line.length + 1);
+  if (charCounts.length > 0 && charCounts[0] > 0) { charCounts[0] -= 1; }
+  let cur = 0;
+  let sum = 0;
+  for (let i = 0; i < charCounts.length; i++) {
+    sum += charCounts[i];
+    if (pos <= sum) {
+      cur = i + 1;
+      break;
+    }
+  }
+  return [cur, lines.length];
+}
+function syncScroll() {
+  const input = document.getElementById('mdInput');
+  const preview = document.getElementById('mdPreview');
+  const elements = preview.querySelectorAll('[data-sourcepos]');
+  const CursorPos = getCursorLinePos(input.selectionStart, input.value);
+  let exactelement;
+  for (const el of elements) {
+    const parsed = el.getAttribute('data-sourcepos').split(/:-/).map(i => parseInt(i))
+    if (parsed[0] > CursorPos[0]) break;
+    exactelement = el;
+  }
+  let temp = [exactelement.offsetTop - input.offsetTop, input.scrollTop, ...CursorPos]
+  preview.scrollTop = -13 * 1.7 * (temp[2] - 1) + temp[1] + temp[0]
+}
 function initMarkdownEditor() {
   const input = document.getElementById('mdInput');
   const preview = document.getElementById('mdPreview');
@@ -158,6 +187,9 @@ function initMarkdownEditor() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { saveDescription(input.value); }, 1500);
   });
+  // input.addEventListener('keyup', () => {
+  //   syncScroll();
+  // })
   MDForceRender();
 }
 function MDForceRender() {
@@ -198,6 +230,7 @@ function parseMarkdown(text) {
   let h = marked.parse(text);
   return h;
 }
+// u
 // ===== Modal =====
 function openNewTaskModal() {
   if (!STATE.workspaceId) {
