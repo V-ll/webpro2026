@@ -346,15 +346,6 @@
       btn.textContent = 'このワークスペースを削除';
     }
   }
-  // document.getElementById('modalBackdrop').addEventListener('click', function(e) {
-  //   if (e.target === this) closeModal();
-  // });
-  document.getElementById('workspaceModalBackdrop').addEventListener('click', function(e) {
-    if (e.target === this) closeWorkspaceModal();
-  });
-  document.getElementById('workspaceManagerModalBackdrop').addEventListener('click', function(e) {
-    if (e.target === this) closeWorkspaceManagerModal();
-  });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeModal();
@@ -952,79 +943,6 @@
     <% if (workspace && tasks && tasks.length > 0) { %>
     <script >selectTask(<%= tasks[0].id%>)</script>
     <% } %>
-    <!-- <% if (workspace && tasks && tasks.length > 0) { %> -->
-    <!--   <!-- タスクが選択されたら JS で内容差し替え --> -->
-    <!--   <div class="task-editor" id="taskEditor"> -->
-    <!--     <div class="task-top-bar"> -->
-    <!--       <div class="task-title-display" id="taskTitleDisplay" onclick="startEditTitle()"> -->
-    <!--         <%= tasks[0].title %> -->
-    <!--       </div> -->
-    <!--       <input class="task-title-input" id="taskTitleInput" style="display:none" -->
-    <!--              onblur="commitTitle()" onkeydown="if(event.key==='Enter')commitTitle()"> -->
-    <!--       <div class="task-meta-row"> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-status"> -->
-    <!--           <span class="meta-chip-label">ステータス</span> -->
-    <!--           <span class="meta-chip-value" id="taskStatus" -->
-    <!--                 onclick="openStatusPopup()" aria-haspopup="true"> -->
-    <!--             <span class="status-badge status-<%= tasks[0].status %>"><%= tasks[0].status %></span> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-priority"> -->
-    <!--           <span class="meta-chip-label">優先度</span> -->
-    <!--           <span class="meta-chip-value" id="taskPriority" -->
-    <!--             onclick="openPriorityPopup()" aria-haspopup="true" style="background:<%= include('fuga')%>"> -->
-    <!--             <%= tasks[0].priority %> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-progress"> -->
-    <!--           <span class="meta-chip-label">進捗</span> -->
-    <!--           <span class="meta-chip-value" id="taskProgress" -->
-    <!--                 onclick="openProgressPopup()" aria-haspopup="true"> -->
-    <!--             <%= tasks[0].progress %>% -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-duedate"> -->
-    <!--           <span class="meta-chip-label">期限</span> -->
-    <!--           <span class="meta-chip-value" id="taskDueDate" onclick="openDueDatePopup()" aria-haspopup="true"> -->
-    <!--             <% if (tasks[0].dueDate) { %> -->
-    <!--             <%- include('hoge.ejs') %> -->
-    <!--             <% } else { %>未設定<% } %> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-reminder"> -->
-    <!--           <span class="meta-chip-label">リマインド</span> -->
-    <!--           <span class="meta-chip-value" id="taskReminder" onclick="openReminderPopup()" aria-haspopup="true"> -->
-    <!--             <%= tasks[0].reminders?.length ? `${tasks[0].reminders.length}件` : 'なし' %> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <button class="task-delete-btn" id="taskDeleteBtn" type="button" onclick="deleteCurrentTask()" aria-label="このタスクを削除"> -->
-    <!--           削除 -->
-    <!--         </button> -->
-    <!--       </div> -->
-    <!--     </div> -->
-    <!--     <div class="md-area"> -->
-    <!--       <div class="md-pane"> -->
-    <!--         <div class="md-pane-label">説明（Markdown）</div> -->
-    <!--         <textarea class="md-textarea" id="mdInput" placeholder="# タスクの説明&#10;&#10;マークダウンで記述..."><%= tasks[0].description || '' %></textarea> -->
-    <!--       </div> -->
-    <!--       <div class="md-pane"> -->
-    <!--         <div class="md-pane-label">プレビュー</div> -->
-    <!--         <div class="md-preview" id="mdPreview"></div> -->
-    <!--       </div> -->
-    <!--     </div> -->
-    <!--   </div> -->
-    <!-- <% } else { %> -->
-    <!--   <!-- 空状態 --> -->
-    <!--   <div class="empty-state" id="emptyState"> -->
-    <!--     <div class="empty-state-icon">📋</div> -->
-    <!--     <h2>タスクがまだありません</h2> -->
-    <!--     <p>最初のタスクを作成して、<br>プロジェクトを始めましょう。</p> -->
-    <!--     <button class="empty-state-btn" onclick="openNewTaskModal()">＋ タスクを作成</button> -->
-    <!--     <% if (!workspace) { %> -->
-    <!--       <button class="empty-state-btn" style="background:var(--bg-3);margin-top:4px" onclick="initWorkspace()">ワークスペースを初期化</button> -->
-    <!--     <% } %> -->
-    <!--   </div> -->
-    <!-- <% } %> -->
   </main>
 </div>
 <!-- ── Task Create Modal ── -->
@@ -1085,7 +1003,7 @@
   </div>
 </div>
 <!-- ── Workspace Manager Modal ── -->
-<div class="modal-backdrop" id="workspaceManagerModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceManagerModalTitle">
+<div class="modal-backdrop" id="workspaceManagerModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceManagerModalTitle",onclick="function(e) {if (e.target === this) closeWorkspaceManagerModal();}">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title" id="workspaceManagerModalTitle">ワークスペースを管理</span>
@@ -1113,7 +1031,7 @@
   </div>
 </div>
 <!-- ── Workspace Create Modal ── -->
-<div class="modal-backdrop" id="workspaceModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceModalTitle">
+<div class="modal-backdrop" id="workspaceModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceModalTitle",onclick="function(e) {if (e.target === this) closeWorkspaceModal();}">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
       <span class="modal-title" id="workspaceModalTitle">ワークスペースを追加</span>
