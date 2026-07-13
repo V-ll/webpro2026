@@ -161,12 +161,10 @@ function initMarkdownEditor() {
   MDForceRender();
 }
 function MDForceRender() {
-  const input = document.getElementById('mdInput');
-  const preview = document.getElementById('mdPreview');
   let renderTimer;
   clearTimeout(renderTimer);
   renderTimer = setTimeout(() => {
-    preview.innerHTML = parseMarkdown(input.value);
+    document.getElementById('mdPreview').innerHTML = new commonmark.HtmlRenderer().render(commonmark.Parser().parse(document.getElementById('mdInput').value))
     if (hljs.highlightAll) {
       hljs.highlightAll();
     } else {
