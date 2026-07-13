@@ -70,7 +70,7 @@ app.get("/", async (req, res) => {
       return;
     }
 
-    res.render("index", { 
+    res.render("index", {
       workspace,
       lists: workspace.lists,
       tasks: workspace.lists.flatMap(l => l.tasks)
@@ -249,7 +249,7 @@ app.get("/api/workspaces/:workspaceId/tasks", async (req, res) => {
   try {
     const { workspaceId } = req.params;
     log(`GET /api/workspaces/${workspaceId}/tasks`);
-    
+
     const tasks = await prisma.task.findMany({
       where: {
         workspaceId: parseInt(workspaceId),

@@ -164,8 +164,12 @@ function MDForceRender() {
   let renderTimer;
   clearTimeout(renderTimer);
   renderTimer = setTimeout(() => {
-    document.getElementById('mdPreview').innerHTML = new commonmark.HtmlRenderer().render(commonmark.Parser().parse(document.getElementById('mdInput').value))
-    if (hljs.highlightAll) {
+    document.getElementById('mdPreview').innerHTML = new commonmark.HtmlRenderer(
+      { sourcepos: true }
+    ).render(
+      commonmark.Parser().parse(document.getElementById('mdInput').value)
+    )
+    if (typeof hljs !== 'undefined') {//仮定
       hljs.highlightAll();
     } else {
       console.log('hljs.highlightAll not found');
@@ -297,13 +301,13 @@ async function deleteCurrentWorkspace() {
     btn.textContent = 'このワークスペースを削除';
   }
 }
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeModal();
-    closeWorkspaceModal();
-    closeWorkspaceManagerModal();
-  }
-});
+// document.addEventListener('keydown', e => {
+//   if (e.key === 'Escape') {
+//     closeModal();
+//     closeWorkspaceModal();
+//     closeWorkspaceManagerModal();
+//   }
+// });
 // ===== Create Workspace =====
 async function createWorkspace() {
   const name = document.getElementById('inputWorkspaceName').value.trim();
