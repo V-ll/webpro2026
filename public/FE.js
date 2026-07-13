@@ -303,13 +303,6 @@ async function deleteCurrentWorkspace() {
     btn.textContent = 'このワークスペースを削除';
   }
 }
-// document.addEventListener('keydown', e => {
-//   if (e.key === 'Escape') {
-//     closeModal();
-//     closeWorkspaceModal();
-//     closeWorkspaceManagerModal();
-//   }
-// });
 // ===== Create Workspace =====
 async function createWorkspace() {
   const name = document.getElementById('inputWorkspaceName').value.trim();
@@ -378,6 +371,7 @@ async function createTask() {
       renderTaskEditor(task);
     }
     closeModal();
+    togglePanel();//今開いているので、閉じる
     showToast('タスクを作成しました ✓', 'success');
     selectTask(task.id);
   } catch (e) {
