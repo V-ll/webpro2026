@@ -164,11 +164,13 @@ function MDForceRender() {
   let renderTimer;
   clearTimeout(renderTimer);
   renderTimer = setTimeout(() => {
-    document.getElementById('mdPreview').innerHTML = new commonmark.HtmlRenderer(
-      { sourcepos: true }
-    ).render(
-      commonmark.Parser().parse(document.getElementById('mdInput').value)
-    )
+    if (typeof commonmark !== 'undefined') {
+      document.getElementById('mdPreview').innerHTML = new commonmark.HtmlRenderer(
+        { sourcepos: true }
+      ).render(
+        commonmark.Parser().parse(document.getElementById('mdInput').value)
+      )
+    }
     if (typeof hljs !== 'undefined') {//仮定
       hljs.highlightAll();
     } else {
