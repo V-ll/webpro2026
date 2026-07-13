@@ -30,321 +30,6 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
 <body>
-<div class="layout">
-  <!-- ── Sidebar ── -->
-  <nav class="sidebar" aria-label="サイドバー">
-    <button class="sidebar-btn accent" id="togglePanelBtn" onclick="togglePanel()" title="パネルを開く" aria-expanded="false">☰</button>
-    <button class="sidebar-btn" onclick="openNewTaskModal()" title="新規タスク作成" id="sidebarNewBtn" style="margin-top:auto">＋</button>
-  </nav>
-  <!-- ── Overlay ── -->
-  <div class="overlay" id="overlay" onclick="togglePanel()"></div>
-  <!-- ── Side Panel ── -->
-  <aside class="side-panel" id="sidePanel" aria-label="タスクパネル">
-    <div class="panel-header">
-      <button class="panel-workspace-name" id="workspaceName" type="button" onclick="openWorkspaceManagerModal()" title="ワークスペースを管理">
-        <%= workspace?.name || 'ワークスペース' %>
-      </button>
-      <div class="panel-header-actions">
-        <button class="workspace-add-btn" type="button" onclick="openWorkspaceModal()" title="ワークスペースを追加" aria-label="ワークスペースを追加">＋</button>
-        <button class="panel-close" onclick="togglePanel()" title="閉じる" aria-label="パネルを閉じる">✕</button>
-      </div>
-    </div>
-    <button class="new-task-btn" onclick="openNewTaskModal()" id="newTaskBtn">
-      <span>＋</span> 新規タスク
-    </button>
-    <div class="panel-body" id="panelBody">
-      <% if (lists && lists.length > 0) { %>
-        <% lists.forEach((list) => { %>
-          <div class="list-section" id="list-section-<%= list.id %>">
-            <div class="list-label">
-              <span class="list-dot" style="background:<%= list.color || '#5b7cf7' %>"></span>
-              <%= list.name %>
-            </div>
-            <% const listTasks = tasks.filter(t => t.listId === list.id); %>
-            <% if (listTasks.length === 0) { %>
-              <div style="padding:6px 14px 10px; font-size:12px; color:var(--text-2);">タスクなし</div>
-            <% } %>
-            <% listTasks.forEach((task) => { %>
-              <div class="task-item" id="task-item-<%= task.id %>" onclick="selectTask(<%= task.id %>)">
-                <div class="task-item-title"><%= task.title %></div>
-                <div class="task-item-meta">
-                  <span class="status-badge status-<%= task.status %>"><%= task.status %></span>
-                  <% if (task.dueDate) { %>
-                    <span><%= new Date(task.dueDate).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'}) %></span>
-                  <% } %>
-                </div>
-              </div>
-            <% }); %>
-          </div>
-        <% }); %>
-      <% } else { %>
-        <div class="panel-empty">
-          タスクリストがありません。<br>初期化ボタンでセットアップできます。
-        </div>
-      <% } %>
-    </div>
-  </aside>
-  <!-- ── Main Area ── -->
-  <main class="main-area" id="mainArea">
-    <% if (workspace && tasks && tasks.length > 0) { %>
-    <script >selectTask(<%= tasks[0].id%>)</script>
-    <% } %>
-    <!-- <% if (workspace && tasks && tasks.length > 0) { %> -->
-    <!--   <!-- タスクが選択されたら JS で内容差し替え --> -->
-    <!--   <div class="task-editor" id="taskEditor"> -->
-    <!--     <div class="task-top-bar"> -->
-    <!--       <div class="task-title-display" id="taskTitleDisplay" onclick="startEditTitle()"> -->
-    <!--         <%= tasks[0].title %> -->
-    <!--       </div> -->
-    <!--       <input class="task-title-input" id="taskTitleInput" style="display:none" -->
-    <!--              onblur="commitTitle()" onkeydown="if(event.key==='Enter')commitTitle()"> -->
-    <!--       <div class="task-meta-row"> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-status"> -->
-    <!--           <span class="meta-chip-label">ステータス</span> -->
-    <!--           <span class="meta-chip-value" id="taskStatus" -->
-    <!--                 onclick="openStatusPopup()" aria-haspopup="true"> -->
-    <!--             <span class="status-badge status-<%= tasks[0].status %>"><%= tasks[0].status %></span> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-priority"> -->
-    <!--           <span class="meta-chip-label">優先度</span> -->
-    <!--           <span class="meta-chip-value" id="taskPriority" -->
-    <!--             onclick="openPriorityPopup()" aria-haspopup="true" style="background:<%= include('fuga')%>"> -->
-    <!--             <%= tasks[0].priority %> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-progress"> -->
-    <!--           <span class="meta-chip-label">進捗</span> -->
-    <!--           <span class="meta-chip-value" id="taskProgress" -->
-    <!--                 onclick="openProgressPopup()" aria-haspopup="true"> -->
-    <!--             <%= tasks[0].progress %>% -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-duedate"> -->
-    <!--           <span class="meta-chip-label">期限</span> -->
-    <!--           <span class="meta-chip-value" id="taskDueDate" onclick="openDueDatePopup()" aria-haspopup="true"> -->
-    <!--             <% if (tasks[0].dueDate) { %> -->
-    <!--             <%- include('hoge.ejs') %> -->
-    <!--             <% } else { %>未設定<% } %> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <div class="meta-chip meta-popup-anchor" id="chip-reminder"> -->
-    <!--           <span class="meta-chip-label">リマインド</span> -->
-    <!--           <span class="meta-chip-value" id="taskReminder" onclick="openReminderPopup()" aria-haspopup="true"> -->
-    <!--             <%= tasks[0].reminders?.length ? `${tasks[0].reminders.length}件` : 'なし' %> -->
-    <!--           </span> -->
-    <!--         </div> -->
-    <!--         <button class="task-delete-btn" id="taskDeleteBtn" type="button" onclick="deleteCurrentTask()" aria-label="このタスクを削除"> -->
-    <!--           削除 -->
-    <!--         </button> -->
-    <!--       </div> -->
-    <!--     </div> -->
-    <!--     <div class="md-area"> -->
-    <!--       <div class="md-pane"> -->
-    <!--         <div class="md-pane-label">説明（Markdown）</div> -->
-    <!--         <textarea class="md-textarea" id="mdInput" placeholder="# タスクの説明&#10;&#10;マークダウンで記述..."><%= tasks[0].description || '' %></textarea> -->
-    <!--       </div> -->
-    <!--       <div class="md-pane"> -->
-    <!--         <div class="md-pane-label">プレビュー</div> -->
-    <!--         <div class="md-preview" id="mdPreview"></div> -->
-    <!--       </div> -->
-    <!--     </div> -->
-    <!--   </div> -->
-    <!-- <% } else { %> -->
-    <!--   <!-- 空状態 --> -->
-    <!--   <div class="empty-state" id="emptyState"> -->
-    <!--     <div class="empty-state-icon">📋</div> -->
-    <!--     <h2>タスクがまだありません</h2> -->
-    <!--     <p>最初のタスクを作成して、<br>プロジェクトを始めましょう。</p> -->
-    <!--     <button class="empty-state-btn" onclick="openNewTaskModal()">＋ タスクを作成</button> -->
-    <!--     <% if (!workspace) { %> -->
-    <!--       <button class="empty-state-btn" style="background:var(--bg-3);margin-top:4px" onclick="initWorkspace()">ワークスペースを初期化</button> -->
-    <!--     <% } %> -->
-    <!--   </div> -->
-    <!-- <% } %> -->
-  </main>
-</div>
-<!-- ── Task Create Modal ── -->
-<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle">新規タスク作成</span>
-      <button class="modal-close-btn" onclick="closeModal()" aria-label="モーダルを閉じる">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-field">
-        <label class="form-label" for="inputTitle">タスク名 <span style="color:var(--red)">*</span></label>
-        <input class="form-input" id="inputTitle" type="text" placeholder="タスクのタイトルを入力..." autocomplete="off">
-      </div>
-      <div class="form-field">
-        <label class="form-label" for="inputList">リスト</label>
-        <select class="form-select" id="inputList">
-          <% if (lists && lists.length > 0) { %>
-            <% lists.forEach(list => { %>
-              <option value="<%= list.id %>"><%= list.name %></option>
-            <% }); %>
-          <% } else { %>
-            <option value="">（リストなし）</option>
-          <% } %>
-        </select>
-      </div>
-      <div class="form-row">
-        <div class="form-field">
-          <label class="form-label" for="inputStatus">ステータス</label>
-          <select class="form-select" id="inputStatus">
-            <option value="未着手">未着手</option>
-            <option value="着手中">着手中</option>
-            <option value="凍結">凍結</option>
-            <option value="完了">完了</option>
-          </select>
-        </div>
-        <div class="form-field">
-          <label class="form-label" for="inputPriority">優先度</label>
-          <select class="form-select" id="inputPriority">
-            <option value="0">0 - 最低</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3" selected>3 - 中</option>
-            <option value="4">4</option>
-            <option value="5">5 - 最高</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-field">
-        <label class="form-label" for="inputDueDate">期限（任意）</label>
-        <input class="form-input" id="inputDueDate" type="datetime-local">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
-      <button class="btn btn-primary" id="createBtn" onclick="createTask()">作成</button>
-    </div>
-  </div>
-</div>
-<!-- ── Workspace Manager Modal ── -->
-<div class="modal-backdrop" id="workspaceManagerModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceManagerModalTitle">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <span class="modal-title" id="workspaceManagerModalTitle">ワークスペースを管理</span>
-      <button class="modal-close-btn" onclick="closeWorkspaceManagerModal()" aria-label="モーダルを閉じる">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-field">
-        <label class="form-label" for="workspaceSelect">ワークスペースを切り替え</label>
-        <select class="form-select" id="workspaceSelect" onchange="switchWorkspace(this.value)"></select>
-      </div>
-      <div class="form-field">
-        <label class="form-label" for="editWorkspaceName">ワークスペース名 <span style="color:var(--red)">*</span></label>
-        <input class="form-input" id="editWorkspaceName" type="text" autocomplete="off">
-      </div>
-      <div class="form-field">
-        <label class="form-label" for="editWorkspaceDescription">説明（任意）</label>
-        <input class="form-input" id="editWorkspaceDescription" type="text" autocomplete="off">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-danger" id="deleteWorkspaceBtn" onclick="deleteCurrentWorkspace()">このワークスペースを削除</button>
-      <button class="btn btn-ghost" onclick="closeWorkspaceManagerModal()">キャンセル</button>
-      <button class="btn btn-primary" id="saveWorkspaceBtn" onclick="saveCurrentWorkspace()">保存</button>
-    </div>
-  </div>
-</div>
-<!-- ── Workspace Create Modal ── -->
-<div class="modal-backdrop" id="workspaceModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceModalTitle">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-header">
-      <span class="modal-title" id="workspaceModalTitle">ワークスペースを追加</span>
-      <button class="modal-close-btn" onclick="closeWorkspaceModal()" aria-label="モーダルを閉じる">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="form-field">
-        <label class="form-label" for="inputWorkspaceName">ワークスペース名 <span style="color:var(--red)">*</span></label>
-        <input class="form-input" id="inputWorkspaceName" type="text" placeholder="例：個人プロジェクト" autocomplete="off">
-      </div>
-      <div class="form-field">
-        <label class="form-label" for="inputWorkspaceDescription">説明（任意）</label>
-        <input class="form-input" id="inputWorkspaceDescription" type="text" placeholder="ワークスペースの説明を入力..." autocomplete="off">
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" onclick="closeWorkspaceModal()">キャンセル</button>
-      <button class="btn btn-primary" id="createWorkspaceBtn" onclick="createWorkspace()">追加</button>
-    </div>
-  </div>
-</div>
-<!-- ── Meta Popups ── -->
-<!-- Status Popup -->
-<div class="meta-popup" id="popup-status" style="display:none" role="dialog" aria-label="ステータス選択">
-  <div class="meta-popup-header">ステータス</div>
-  <div class="status-add-row">
-    <input class="status-add-input" id="statusAddInput" type="text" placeholder="新しいステータスを追加..."
-           onkeydown="if(event.key==='Enter')addCustomStatus()">
-    <button class="status-add-btn" onclick="addCustomStatus()">追加</button>
-  </div>
-  <div id="statusOptionList"></div>
-</div>
-<!-- Priority Popup -->
-<div class="meta-popup" id="popup-priority" style="display:none" role="dialog" aria-label="優先度選択">
-  <div class="meta-popup-header">優先度 (0 = 最低 / 5 = 最高)</div>
-  <div class="priority-grid" id="priorityGrid"></div>
-</div>
-<!-- Progress Popup -->
-<div class="meta-popup" id="popup-progress" style="display:none" role="dialog" aria-label="進捗入力">
-  <div class="meta-popup-header">進捗</div>
-  <div class="progress-body">
-    <div class="progress-number-row">
-      <input class="progress-num-input" id="progressNumInput" type="number" min="0" max="100" value="0"
-             oninput="syncProgressSlider()">
-      <span style="font-size:14px;color:var(--text-2)">%</span>
-    </div>
-    <input class="progress-slider" id="progressSlider" type="range" min="0" max="100" value="0"
-           oninput="syncProgressNum()">
-    <div class="progress-bar-track">
-      <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
-    </div>
-    <button class="progress-save-btn" onclick="saveProgress()">保存</button>
-  </div>
-</div>
-<!-- Reminder Popup -->
-<div class="meta-popup" id="popup-reminder" style="display:none" role="dialog" aria-label="リマインダー設定">
-  <div class="meta-popup-header">リマインダー</div>
-  <div class="reminder-body">
-    <div class="reminder-add-row">
-      <select class="reminder-select" id="reminderPresetInput" aria-label="期限前のリマインダー">
-        <option value="30min">30分前</option>
-        <option value="1hour">1時間前</option>
-        <option value="3hours">3時間前</option>
-        <option value="12hours">12時間前</option>
-        <option value="1day">1日前</option>
-        <option value="3days">3日前</option>
-        <option value="1week">1週間前</option>
-      </select>
-      <button class="duedate-save-btn" onclick="addPresetReminder()">追加</button>
-    </div>
-    <div class="reminder-custom-row">
-      <span class="reminder-custom-label">日時を指定（時計）</span>
-      <div class="reminder-add-row">
-        <input class="duedate-input" id="reminderCustomInput" type="datetime-local" aria-label="リマインダー日時">
-        <button class="duedate-save-btn" onclick="addCustomReminder()">追加</button>
-      </div>
-    </div>
-    <div class="reminder-list" id="reminderList"></div>
-    <button class="reminder-enable-btn" type="button" onclick="enableReminderAlerts()">通知音・ブラウザ通知を有効化</button>
-  </div>
-</div>
-<!-- DueDate Popup -->
-<div class="meta-popup" id="popup-duedate" style="display:none" role="dialog" aria-label="期限設定">
-  <div class="meta-popup-header">期限</div>
-  <div class="duedate-body">
-    <input class="duedate-input" id="dueDateInput" type="datetime-local">
-    <div class="duedate-btns">
-      <button class="duedate-clear-btn" onclick="clearDueDate()">クリア</button>
-      <button class="duedate-save-btn" onclick="saveDueDate()">保存</button>
-    </div>
-  </div>
-</div>
-<!-- ── Toast ── -->
-<div class="toast" id="toast"></div>
 <script>
   function toISOStringWithTimezone(date) {
     const year = date.getFullYear().toString();
@@ -1207,5 +892,320 @@
     }
   });
 </script>
+<div class="layout">
+  <!-- ── Sidebar ── -->
+  <nav class="sidebar" aria-label="サイドバー">
+    <button class="sidebar-btn accent" id="togglePanelBtn" onclick="togglePanel()" title="パネルを開く" aria-expanded="false">☰</button>
+    <button class="sidebar-btn" onclick="openNewTaskModal()" title="新規タスク作成" id="sidebarNewBtn" style="margin-top:auto">＋</button>
+  </nav>
+  <!-- ── Overlay ── -->
+  <div class="overlay" id="overlay" onclick="togglePanel()"></div>
+  <!-- ── Side Panel ── -->
+  <aside class="side-panel" id="sidePanel" aria-label="タスクパネル">
+    <div class="panel-header">
+      <button class="panel-workspace-name" id="workspaceName" type="button" onclick="openWorkspaceManagerModal()" title="ワークスペースを管理">
+        <%= workspace?.name || 'ワークスペース' %>
+      </button>
+      <div class="panel-header-actions">
+        <button class="workspace-add-btn" type="button" onclick="openWorkspaceModal()" title="ワークスペースを追加" aria-label="ワークスペースを追加">＋</button>
+        <button class="panel-close" onclick="togglePanel()" title="閉じる" aria-label="パネルを閉じる">✕</button>
+      </div>
+    </div>
+    <button class="new-task-btn" onclick="openNewTaskModal()" id="newTaskBtn">
+      <span>＋</span> 新規タスク
+    </button>
+    <div class="panel-body" id="panelBody">
+      <% if (lists && lists.length > 0) { %>
+        <% lists.forEach((list) => { %>
+          <div class="list-section" id="list-section-<%= list.id %>">
+            <div class="list-label">
+              <span class="list-dot" style="background:<%= list.color || '#5b7cf7' %>"></span>
+              <%= list.name %>
+            </div>
+            <% const listTasks = tasks.filter(t => t.listId === list.id); %>
+            <% if (listTasks.length === 0) { %>
+              <div style="padding:6px 14px 10px; font-size:12px; color:var(--text-2);">タスクなし</div>
+            <% } %>
+            <% listTasks.forEach((task) => { %>
+              <div class="task-item" id="task-item-<%= task.id %>" onclick="selectTask(<%= task.id %>)">
+                <div class="task-item-title"><%= task.title %></div>
+                <div class="task-item-meta">
+                  <span class="status-badge status-<%= task.status %>"><%= task.status %></span>
+                  <% if (task.dueDate) { %>
+                    <span><%= new Date(task.dueDate).toLocaleDateString('ja-JP', {month:'numeric',day:'numeric'}) %></span>
+                  <% } %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% }); %>
+      <% } else { %>
+        <div class="panel-empty">
+          タスクリストがありません。<br>初期化ボタンでセットアップできます。
+        </div>
+      <% } %>
+    </div>
+  </aside>
+  <!-- ── Main Area ── -->
+  <main class="main-area" id="mainArea">
+    <% if (workspace && tasks && tasks.length > 0) { %>
+    <script >selectTask(<%= tasks[0].id%>)</script>
+    <% } %>
+    <!-- <% if (workspace && tasks && tasks.length > 0) { %> -->
+    <!--   <!-- タスクが選択されたら JS で内容差し替え --> -->
+    <!--   <div class="task-editor" id="taskEditor"> -->
+    <!--     <div class="task-top-bar"> -->
+    <!--       <div class="task-title-display" id="taskTitleDisplay" onclick="startEditTitle()"> -->
+    <!--         <%= tasks[0].title %> -->
+    <!--       </div> -->
+    <!--       <input class="task-title-input" id="taskTitleInput" style="display:none" -->
+    <!--              onblur="commitTitle()" onkeydown="if(event.key==='Enter')commitTitle()"> -->
+    <!--       <div class="task-meta-row"> -->
+    <!--         <div class="meta-chip meta-popup-anchor" id="chip-status"> -->
+    <!--           <span class="meta-chip-label">ステータス</span> -->
+    <!--           <span class="meta-chip-value" id="taskStatus" -->
+    <!--                 onclick="openStatusPopup()" aria-haspopup="true"> -->
+    <!--             <span class="status-badge status-<%= tasks[0].status %>"><%= tasks[0].status %></span> -->
+    <!--           </span> -->
+    <!--         </div> -->
+    <!--         <div class="meta-chip meta-popup-anchor" id="chip-priority"> -->
+    <!--           <span class="meta-chip-label">優先度</span> -->
+    <!--           <span class="meta-chip-value" id="taskPriority" -->
+    <!--             onclick="openPriorityPopup()" aria-haspopup="true" style="background:<%= include('fuga')%>"> -->
+    <!--             <%= tasks[0].priority %> -->
+    <!--           </span> -->
+    <!--         </div> -->
+    <!--         <div class="meta-chip meta-popup-anchor" id="chip-progress"> -->
+    <!--           <span class="meta-chip-label">進捗</span> -->
+    <!--           <span class="meta-chip-value" id="taskProgress" -->
+    <!--                 onclick="openProgressPopup()" aria-haspopup="true"> -->
+    <!--             <%= tasks[0].progress %>% -->
+    <!--           </span> -->
+    <!--         </div> -->
+    <!--         <div class="meta-chip meta-popup-anchor" id="chip-duedate"> -->
+    <!--           <span class="meta-chip-label">期限</span> -->
+    <!--           <span class="meta-chip-value" id="taskDueDate" onclick="openDueDatePopup()" aria-haspopup="true"> -->
+    <!--             <% if (tasks[0].dueDate) { %> -->
+    <!--             <%- include('hoge.ejs') %> -->
+    <!--             <% } else { %>未設定<% } %> -->
+    <!--           </span> -->
+    <!--         </div> -->
+    <!--         <div class="meta-chip meta-popup-anchor" id="chip-reminder"> -->
+    <!--           <span class="meta-chip-label">リマインド</span> -->
+    <!--           <span class="meta-chip-value" id="taskReminder" onclick="openReminderPopup()" aria-haspopup="true"> -->
+    <!--             <%= tasks[0].reminders?.length ? `${tasks[0].reminders.length}件` : 'なし' %> -->
+    <!--           </span> -->
+    <!--         </div> -->
+    <!--         <button class="task-delete-btn" id="taskDeleteBtn" type="button" onclick="deleteCurrentTask()" aria-label="このタスクを削除"> -->
+    <!--           削除 -->
+    <!--         </button> -->
+    <!--       </div> -->
+    <!--     </div> -->
+    <!--     <div class="md-area"> -->
+    <!--       <div class="md-pane"> -->
+    <!--         <div class="md-pane-label">説明（Markdown）</div> -->
+    <!--         <textarea class="md-textarea" id="mdInput" placeholder="# タスクの説明&#10;&#10;マークダウンで記述..."><%= tasks[0].description || '' %></textarea> -->
+    <!--       </div> -->
+    <!--       <div class="md-pane"> -->
+    <!--         <div class="md-pane-label">プレビュー</div> -->
+    <!--         <div class="md-preview" id="mdPreview"></div> -->
+    <!--       </div> -->
+    <!--     </div> -->
+    <!--   </div> -->
+    <!-- <% } else { %> -->
+    <!--   <!-- 空状態 --> -->
+    <!--   <div class="empty-state" id="emptyState"> -->
+    <!--     <div class="empty-state-icon">📋</div> -->
+    <!--     <h2>タスクがまだありません</h2> -->
+    <!--     <p>最初のタスクを作成して、<br>プロジェクトを始めましょう。</p> -->
+    <!--     <button class="empty-state-btn" onclick="openNewTaskModal()">＋ タスクを作成</button> -->
+    <!--     <% if (!workspace) { %> -->
+    <!--       <button class="empty-state-btn" style="background:var(--bg-3);margin-top:4px" onclick="initWorkspace()">ワークスペースを初期化</button> -->
+    <!--     <% } %> -->
+    <!--   </div> -->
+    <!-- <% } %> -->
+  </main>
+</div>
+<!-- ── Task Create Modal ── -->
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">新規タスク作成</span>
+      <button class="modal-close-btn" onclick="closeModal()" aria-label="モーダルを閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label" for="inputTitle">タスク名 <span style="color:var(--red)">*</span></label>
+        <input class="form-input" id="inputTitle" type="text" placeholder="タスクのタイトルを入力..." autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="inputList">リスト</label>
+        <select class="form-select" id="inputList">
+          <% if (lists && lists.length > 0) { %>
+            <% lists.forEach(list => { %>
+              <option value="<%= list.id %>"><%= list.name %></option>
+            <% }); %>
+          <% } else { %>
+            <option value="">（リストなし）</option>
+          <% } %>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label" for="inputStatus">ステータス</label>
+          <select class="form-select" id="inputStatus">
+            <option value="未着手">未着手</option>
+            <option value="着手中">着手中</option>
+            <option value="凍結">凍結</option>
+            <option value="完了">完了</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="inputPriority">優先度</label>
+          <select class="form-select" id="inputPriority">
+            <option value="0">0 - 最低</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3" selected>3 - 中</option>
+            <option value="4">4</option>
+            <option value="5">5 - 最高</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="inputDueDate">期限（任意）</label>
+        <input class="form-input" id="inputDueDate" type="datetime-local">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">キャンセル</button>
+      <button class="btn btn-primary" id="createBtn" onclick="createTask()">作成</button>
+    </div>
+  </div>
+</div>
+<!-- ── Workspace Manager Modal ── -->
+<div class="modal-backdrop" id="workspaceManagerModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceManagerModalTitle">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title" id="workspaceManagerModalTitle">ワークスペースを管理</span>
+      <button class="modal-close-btn" onclick="closeWorkspaceManagerModal()" aria-label="モーダルを閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label" for="workspaceSelect">ワークスペースを切り替え</label>
+        <select class="form-select" id="workspaceSelect" onchange="switchWorkspace(this.value)"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="editWorkspaceName">ワークスペース名 <span style="color:var(--red)">*</span></label>
+        <input class="form-input" id="editWorkspaceName" type="text" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="editWorkspaceDescription">説明（任意）</label>
+        <input class="form-input" id="editWorkspaceDescription" type="text" autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" id="deleteWorkspaceBtn" onclick="deleteCurrentWorkspace()">このワークスペースを削除</button>
+      <button class="btn btn-ghost" onclick="closeWorkspaceManagerModal()">キャンセル</button>
+      <button class="btn btn-primary" id="saveWorkspaceBtn" onclick="saveCurrentWorkspace()">保存</button>
+    </div>
+  </div>
+</div>
+<!-- ── Workspace Create Modal ── -->
+<div class="modal-backdrop" id="workspaceModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="workspaceModalTitle">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title" id="workspaceModalTitle">ワークスペースを追加</span>
+      <button class="modal-close-btn" onclick="closeWorkspaceModal()" aria-label="モーダルを閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field">
+        <label class="form-label" for="inputWorkspaceName">ワークスペース名 <span style="color:var(--red)">*</span></label>
+        <input class="form-input" id="inputWorkspaceName" type="text" placeholder="例：個人プロジェクト" autocomplete="off">
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="inputWorkspaceDescription">説明（任意）</label>
+        <input class="form-input" id="inputWorkspaceDescription" type="text" placeholder="ワークスペースの説明を入力..." autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeWorkspaceModal()">キャンセル</button>
+      <button class="btn btn-primary" id="createWorkspaceBtn" onclick="createWorkspace()">追加</button>
+    </div>
+  </div>
+</div>
+<!-- ── Meta Popups ── -->
+<!-- Status Popup -->
+<div class="meta-popup" id="popup-status" style="display:none" role="dialog" aria-label="ステータス選択">
+  <div class="meta-popup-header">ステータス</div>
+  <div class="status-add-row">
+    <input class="status-add-input" id="statusAddInput" type="text" placeholder="新しいステータスを追加..."
+           onkeydown="if(event.key==='Enter')addCustomStatus()">
+    <button class="status-add-btn" onclick="addCustomStatus()">追加</button>
+  </div>
+  <div id="statusOptionList"></div>
+</div>
+<!-- Priority Popup -->
+<div class="meta-popup" id="popup-priority" style="display:none" role="dialog" aria-label="優先度選択">
+  <div class="meta-popup-header">優先度 (0 = 最低 / 5 = 最高)</div>
+  <div class="priority-grid" id="priorityGrid"></div>
+</div>
+<!-- Progress Popup -->
+<div class="meta-popup" id="popup-progress" style="display:none" role="dialog" aria-label="進捗入力">
+  <div class="meta-popup-header">進捗</div>
+  <div class="progress-body">
+    <div class="progress-number-row">
+      <input class="progress-num-input" id="progressNumInput" type="number" min="0" max="100" value="0"
+             oninput="syncProgressSlider()">
+      <span style="font-size:14px;color:var(--text-2)">%</span>
+    </div>
+    <input class="progress-slider" id="progressSlider" type="range" min="0" max="100" value="0"
+           oninput="syncProgressNum()">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+    </div>
+    <button class="progress-save-btn" onclick="saveProgress()">保存</button>
+  </div>
+</div>
+<!-- Reminder Popup -->
+<div class="meta-popup" id="popup-reminder" style="display:none" role="dialog" aria-label="リマインダー設定">
+  <div class="meta-popup-header">リマインダー</div>
+  <div class="reminder-body">
+    <div class="reminder-add-row">
+      <select class="reminder-select" id="reminderPresetInput" aria-label="期限前のリマインダー">
+        <option value="30min">30分前</option>
+        <option value="1hour">1時間前</option>
+        <option value="3hours">3時間前</option>
+        <option value="12hours">12時間前</option>
+        <option value="1day">1日前</option>
+        <option value="3days">3日前</option>
+        <option value="1week">1週間前</option>
+      </select>
+      <button class="duedate-save-btn" onclick="addPresetReminder()">追加</button>
+    </div>
+    <div class="reminder-custom-row">
+      <span class="reminder-custom-label">日時を指定（時計）</span>
+      <div class="reminder-add-row">
+        <input class="duedate-input" id="reminderCustomInput" type="datetime-local" aria-label="リマインダー日時">
+        <button class="duedate-save-btn" onclick="addCustomReminder()">追加</button>
+      </div>
+    </div>
+    <div class="reminder-list" id="reminderList"></div>
+    <button class="reminder-enable-btn" type="button" onclick="enableReminderAlerts()">通知音・ブラウザ通知を有効化</button>
+  </div>
+</div>
+<!-- DueDate Popup -->
+<div class="meta-popup" id="popup-duedate" style="display:none" role="dialog" aria-label="期限設定">
+  <div class="meta-popup-header">期限</div>
+  <div class="duedate-body">
+    <input class="duedate-input" id="dueDateInput" type="datetime-local">
+    <div class="duedate-btns">
+      <button class="duedate-clear-btn" onclick="clearDueDate()">クリア</button>
+      <button class="duedate-save-btn" onclick="saveDueDate()">保存</button>
+    </div>
+  </div>
+</div>
+<!-- ── Toast ── -->
+<div class="toast" id="toast"></div>
 </body>
 </html>
