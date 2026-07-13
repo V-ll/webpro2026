@@ -193,7 +193,6 @@ function parseMarkdown(text) {
   if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
   let h = marked.parse(text);
   return h;
-  < !-- return '<p>' + h + '</p>'; -->
 }
 // ===== Modal =====
 function openNewTaskModal() {
