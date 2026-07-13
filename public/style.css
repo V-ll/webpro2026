@@ -410,6 +410,7 @@ body {
   text-transform: uppercase;
 }
 .meta-chip-value {
+  text-align:center;
   font-size: 13px;
   padding: 4px 10px;
   border-radius: 6px;
