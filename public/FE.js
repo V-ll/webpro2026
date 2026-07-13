@@ -22,8 +22,8 @@ function toISOStringWithTimezone(date) {
 function zeroPadding(s) {
   return ('0' + s).slice(-2);
 }
-function getTaskDue(s){
-  return new Date(s).toLocaleDateString('ja-JP', { month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' } )
+function getTaskDue(s) {
+  return new Date(s).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 // ===== Panel =====
 function togglePanel() {
@@ -49,7 +49,7 @@ function renderTaskEditor(task) {
   const main = document.getElementById('mainArea');
   const statusClass = `status-${task.status}`;
   const dueDateStr = task.dueDate
-    ? new Date(task.dueDate).toLocaleDateString('ja-JP', {timeZone: 'Asia/Tokyo',year:'numeric',month:'long',day:'numeric'})
+    ? new Date(task.dueDate).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: 'long', day: 'numeric' })
     : '未設定';
   main.innerHTML = `
     <div class="task-editor" id="taskEditor">
@@ -139,7 +139,7 @@ async function commitTitle() {
     const item = document.getElementById('task-item-' + STATE.currentTaskId);
     if (item) item.querySelector('.task-item-title').textContent = newTitle;
     showToast('タイトルを更新しました', 'success');
-  } catch(e) {
+  } catch (e) {
     showToast('更新に失敗しました', 'error');
   } finally {
     STATE.savingTitle = false;
@@ -156,20 +156,20 @@ function initMarkdownEditor() {
   input.addEventListener('input', () => {
     MDForceRender();
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {saveDescription(input.value);}, 1500);
+    saveTimer = setTimeout(() => { saveDescription(input.value); }, 1500);
   });
   MDForceRender();
 }
-function MDForceRender(){
+function MDForceRender() {
   const input = document.getElementById('mdInput');
   const preview = document.getElementById('mdPreview');
   let renderTimer;
   clearTimeout(renderTimer);
-  renderTimer = setTimeout(() =>{
-    preview.innerHTML = parseMarkdown(input.value); 
-    if (hljs.highlightAll){
+  renderTimer = setTimeout(() => {
+    preview.innerHTML = parseMarkdown(input.value);
+    if (hljs.highlightAll) {
       hljs.highlightAll();
-    }else{
+    } else {
       console.log('hljs.highlightAll not found');
     }
     if (window.MathJax && window.MathJax.typesetPromise) {
@@ -185,15 +185,15 @@ async function saveDescription(desc) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ description: desc })
     });
-  } catch(e) {
-    console.log('saveDescription failed:'+e)
+  } catch (e) {
+    console.log('saveDescription failed:' + e)
   }
 }
 function parseMarkdown(text) {
   if (!text) return '<span style="color:var(--text-2);font-style:italic">プレビューがここに表示されます...</span>';
-  let h=marked.parse(text);
+  let h = marked.parse(text);
   return h;
-  <!-- return '<p>' + h + '</p>'; -->
+  < !-- return '<p>' + h + '</p>'; -->
 }
 // ===== Modal =====
 function openNewTaskModal() {
@@ -377,7 +377,7 @@ async function createTask() {
     closeModal();
     showToast('タスクを作成しました ✓', 'success');
     selectTask(task.id);
-  } catch(e) {
+  } catch (e) {
     showToast('作成に失敗: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
@@ -410,12 +410,12 @@ async function initWorkspace() {
     if (!resp.ok) throw new Error('初期化に失敗しました');
     showToast('ワークスペースを作成しました。ページを更新します...', 'success');
     setTimeout(() => location.reload(), 1200);
-  } catch(e) {
+  } catch (e) {
     showToast(e.message, 'error');
   }
 }
 // ===== Meta Popup Engine =====
-const POPUP_IDS = ['popup-status','popup-priority','popup-progress','popup-duedate','popup-reminder'];
+const POPUP_IDS = ['popup-status', 'popup-priority', 'popup-progress', 'popup-duedate', 'popup-reminder'];
 let _activePopup = null;
 function openPopup(id, anchorId) {
   closeAllPopups();
@@ -445,9 +445,9 @@ document.addEventListener('click', e => {
   anchors.forEach(a => { if (a.contains(e.target)) inside = true; });
   if (!inside) closeAllPopups();
 });
-<!-- document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); }); -->
-// ── Status Popup ──
-let _customStatuses = [];
+< !--document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPopups(); }); -->
+  // ── Status Popup ──
+  let _customStatuses = [];
 function openStatusPopup() {
   renderStatusOptions();
   openPopup('popup-status', 'chip-status');
@@ -511,7 +511,7 @@ function openPriorityPopup() {
   const current = task?.priority ?? 0;
   const grid = document.getElementById('priorityGrid');
   if (grid) {
-    grid.innerHTML = [0,1,2,3,4,5].map(p => {
+    grid.innerHTML = [0, 1, 2, 3, 4, 5].map(p => {
       const sel = p === current ? 'selected' : '';
       return `<button class="priority-btn ${sel}" style="background:${PRIORITY_COLORS[p]};color:#fff"
         onclick="selectPriority(${p})" title="${p} ${PRIORITY_LABELS[p]}">${p}</button>`;
@@ -533,7 +533,7 @@ async function selectPriority(priority) {
     const chip = document.getElementById('taskPriority');
     if (chip) {
       chip.textContent = priority;
-      chip.style.backgroundColor=PRIORITY_COLORS[priority];
+      chip.style.backgroundColor = PRIORITY_COLORS[priority];
     }
     closeAllPopups();
     showToast('優先度を更新しました', 'success');
@@ -593,8 +593,8 @@ function openDueDatePopup() {
   if (input && task?.dueDate) {
     // datetime-local wants "YYYY-MM-DDTHH:mm"
     const d = new Date(task.dueDate);
-    const pad = n => String(n).padStart(2,'0');
-    input.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const pad = n => String(n).padStart(2, '0');
+    input.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   } else if (input) {
     input.value = '';
   }
@@ -622,7 +622,7 @@ async function patchDueDate(val) {
     if (chip) {
       if (val) {
         const d = new Date(val);
-        chip.textContent = d.toLocaleDateString('ja-JP', {month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'});
+        chip.textContent = d.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
       } else {
         chip.textContent = '未設定';
       }
@@ -647,7 +647,7 @@ function renderReminderList() {
   }
   list.innerHTML = reminders.map(reminder => {
     const label = reminder.reminderType === 'custom'
-      ? new Date(reminder.customTime).toLocaleString('ja-JP', {timeZone:'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      ? new Date(reminder.customTime).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
       : REMINDER_LABELS[reminder.reminderType];
     return `<div class="reminder-item"><span>${label}</span><button class="reminder-remove-btn" type="button" onclick="deleteReminder(${reminder.id})" aria-label="リマインダーを削除">✕</button></div>`;
   }).join('');
@@ -691,7 +691,7 @@ async function addReminder(reminderType, customTime = null) {
     showToast('リマインダーを追加しました', 'success');
   } catch (e) { showToast(e.message, 'error'); }
 }
-async function deleteReminder(reminderId,shouldShowToast=true) {
+async function deleteReminder(reminderId, shouldShowToast = true) {
   try {
     const resp = await fetch(`/api/reminders/${reminderId}`, { method: 'DELETE' });
     if (!resp.ok) throw new Error('リマインダーの削除に失敗しました');
@@ -699,7 +699,7 @@ async function deleteReminder(reminderId,shouldShowToast=true) {
     if (task) task.reminders = (task.reminders || []).filter(reminder => reminder.id !== reminderId);
     renderReminderList();
     updateReminderChip();
-    if(shouldShowToast) showToast('リマインダーを削除しました', 'success');
+    if (shouldShowToast) showToast('リマインダーを削除しました', 'success');
   } catch (e) { showToast(e.message, 'error'); }
 }
 // ── Reminder alerts ──
@@ -744,7 +744,7 @@ async function playReminderSound(intensity) {
     oscillator.type = level >= 4 ? 'square' : 'sine';
     oscillator.frequency.value = 440 + level * 80;
     gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(0.08, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.8, start + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.16);
     oscillator.connect(gain).connect(context.destination);
     oscillator.start(start);
@@ -762,7 +762,7 @@ async function fireReminder(task, reminder, reminderTime) {
   if ('Notification' in window && Notification.permission === 'granted') {
     new Notification('タスクリマインダー', { body: task.title });
   }
-  await deleteReminder(reminder.id,false);// リマインダーの通知とかぶらないように削除通知を出さない
+  await deleteReminder(reminder.id, false);// リマインダーの通知とかぶらないように削除通知を出さない
 }
 function checkReminderSchedules() {
   const now = Date.now();
@@ -807,7 +807,7 @@ function showToast(msg, type = '') {
 // ===== Helpers =====
 function escHtml(str) {
   if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', () => {
