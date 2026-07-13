@@ -4,7 +4,6 @@ import { PrismaClient } from "../generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import path from "path";
 import { fileURLToPath } from "url";
-import { Parser, HtmlRenderer } from 'commonmark';//実験
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
