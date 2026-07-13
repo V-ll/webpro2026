@@ -31,6 +31,9 @@
 </head>
 <body>
 <script>
+  // ===== constants =====
+  const PRIORITY_COLORS=['#4b4b5e','#3b6ea0','#2e86c1','#d4ac0d','#e67e22','#e74c3c'];
+  const PRIORITY_LABELS = ['最低','','','中','','最高'];
   function toISOStringWithTimezone(date) {
     const year = date.getFullYear().toString();
     const month = zeroPadding((date.getMonth() + 1).toString());
@@ -561,8 +564,6 @@
     } catch { showToast('更新に失敗しました', 'error'); }
   }
   // ── Priority Popup ──
-  const PRIORITY_COLORS=['#4b4b5e','#3b6ea0','#2e86c1','#d4ac0d','#e67e22','#e74c3c'];
-  const PRIORITY_LABELS = ['最低','','','中','','最高'];
   function openPriorityPopup() {
     const task = STATE.tasks.find(t => t.id === STATE.currentTaskId);
     const current = task?.priority ?? 0;
