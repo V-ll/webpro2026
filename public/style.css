@@ -234,7 +234,7 @@ body {
   cursor: pointer;
   transition: background var(--transition), border-color var(--transition);
   display: flex;
-  /* flex-direction: column; */
+  flex-direction: column;
   gap: 3px;
   justify-content: space-between;
   --bgleft: var(--bg-1);
@@ -262,7 +262,6 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  width: 220px;
 }
 .task-item-meta {
   font-size: 11px;

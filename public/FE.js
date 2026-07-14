@@ -38,12 +38,18 @@ function togglePanel() {
 function selectTask(taskId) {
   const task = STATE.tasks.find(t => t.id === taskId);
   if (!task) return;
+  // 今書いてるんだったらその内容でキャッシュをアップデート
+  if (STATE.currentTaskId != taskId) {// 一致しないときだけ移っているので変更する
+    // タスク削除に関する遷移については考えなくて良い: 再読込されるらしいので
+    const previousTask = STATE.tasks.find(t => t.id === STATE.currentTaskId);
+    if (previousTask) previousTask.description = document.getElementById('mdInput').value.trim();
+  }
   // Update active item in sidebar
   document.querySelectorAll('.task-item').forEach(el => el.classList.remove('active'));
   const item = document.getElementById('task-item-' + taskId);
   if (item) item.classList.add('active');
-  STATE.currentTaskId = taskId;
   renderTaskEditor(task);
+  STATE.currentTaskId = taskId;
 }
 function renderTaskEditor(task) {
   const main = document.getElementById('mainArea');
