@@ -32,7 +32,6 @@
 <body>
 <script>
   // ===== constants =====
-  const PRIORITY_COLORS=['#4b4b5e','#3b6ea0','#2e86c1','#d4ac0d','#e67e22','#e74c3c'];
   const PRIORITY_LABELS = ['最低','','','中','','最高'];
   const STATE = {
     workspaceId: <%- workspace ? workspace.id : 'null' %>,
@@ -95,7 +94,7 @@
               <div style="padding:6px 14px 10px; font-size:12px; color:var(--text-2);">タスクなし</div>
             <% } %>
             <% listTasks.forEach((task) => { %>
-              <div class="task-item" id="task-item-<%= task.id %>" onclick="selectTask(<%= task.id %>)">
+              <div class="task-item task-priority-<%= task.priority%>" id="task-item-<%= task.id %>" onclick="selectTask(<%= task.id %>)">
                 <div class="task-item-title"><%= task.title %></div>
                 <div class="task-item-meta">
                   <span class="status-badge status-<%= task.status %>"><%= task.status %></span>

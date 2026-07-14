@@ -69,7 +69,7 @@ function renderTaskEditor(task) {
             <span class="meta-chip-label">優先度</span>
             <span class="meta-chip-value" id="taskPriority"
                   onclick="openPriorityPopup()" aria-haspopup="true"
-                  style="background:${PRIORITY_COLORS[task.priority]}">${task.priority}</span>
+                  style="background:var(--priority-${task.priority})">${task.priority}</span>
           </div>
           <div class="meta-chip meta-popup-anchor" id="chip-progress">
             <span class="meta-chip-label">進捗</span>
@@ -614,7 +614,7 @@ function openPriorityPopup() {
   if (grid) {
     grid.innerHTML = [0, 1, 2, 3, 4, 5].map(p => {
       const sel = p === current ? 'selected' : '';
-      return `<button class="priority-btn ${sel}" style="background:${PRIORITY_COLORS[p]};color:#fff"
+      return `<button class="priority-btn ${sel}" style="background:var(--priority-${p});color:#fff"
         onclick="selectPriority(${p})" title="${p} ${PRIORITY_LABELS[p]}">${p}</button>`;
     }).join('');
   }
@@ -634,7 +634,7 @@ async function selectPriority(priority) {
     const chip = document.getElementById('taskPriority');
     if (chip) {
       chip.textContent = priority;
-      chip.style.backgroundColor = PRIORITY_COLORS[priority];
+      chip.style.backgroundColor = `var(--priority-${priority})`;
     }
     closeAllPopups();
     showToast('優先度を更新しました', 'success');
