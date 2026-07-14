@@ -55,7 +55,7 @@ function renderTaskEditor(task) {
   const main = document.getElementById('mainArea');
   const statusClass = `status-${task.status}`;
   const dueDateStr = task.dueDate
-    ? new Date(task.dueDate).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+    ? new Date(task.dueDate).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     : '未設定';
   main.innerHTML = `
     <div class="task-editor" id="taskEditor">
