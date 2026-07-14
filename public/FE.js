@@ -308,7 +308,6 @@ function parseMarkdown(text) {
   let h = marked.parse(text);
   return h;
 }
-// u
 // ===== Modal =====
 function openNewTaskModal() {
   if (!STATE.workspaceId) {

@@ -58,7 +58,11 @@ app.get("/", async (req, res) => {
               include: {
                 milestones: true,
                 reminders: true
-              }
+              },
+              orderBy: [
+                { progress: 'asc' },
+                { priority: 'desc' },
+              ]
             }
           }
         }
@@ -256,10 +260,14 @@ app.get("/api/workspaces/:workspaceId/tasks", async (req, res) => {
         deletedAt: null
       },
       include: {
-        milestones: true,
+        // milestones: true,
         reminders: true,
-        createdBy: true
-      }
+        createdBy: true,
+      },
+      orderBy: [
+        { progress: 'asc' },
+        { priority: 'desc' },
+      ]
     });
     res.json(tasks);
   } catch (error) {
