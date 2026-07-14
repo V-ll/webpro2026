@@ -715,7 +715,7 @@ function openDueDatePopup() {
 }
 async function saveDueDate() {
   const val = document.getElementById('dueDateInput')?.value || null;
-  await patchDueDate(val);
+  await patchDueDate(val === null ? null : toISOStringWithTimezone(new Date(document.getElementById('dueDateInput')?.value)))
 }
 async function clearDueDate() {
   await patchDueDate(null);
