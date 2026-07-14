@@ -7,6 +7,8 @@
    viewBox="0 0 270.93332 270.93331"
    version="1.1"
    id="svg1"
+   sodipodi:docname="favicon.svg"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -21,7 +23,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:document-units="mm">
+     inkscape:document-units="mm"
+     inkscape:zoom="0.25411652"
+     inkscape:cx="444.6779"
+     inkscape:cy="920.83741"
+     inkscape:window-width="1278"
+     inkscape:window-height="1418"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1">
     <inkscape:page
        x="0"
        y="0"
@@ -37,11 +48,11 @@
        id="linearGradient3"
        inkscape:collect="always">
       <stop
-         style="stop-color:#4897ff;stop-opacity:1;"
+         style="stop-color:#000000;stop-opacity:1;"
          offset="0"
          id="stop3" />
       <stop
-         style="stop-color:#222484;stop-opacity:1;"
+         style="stop-color:#223884;stop-opacity:1;"
          offset="1"
          id="stop4" />
     </linearGradient>
@@ -81,7 +92,7 @@
        x="116.49701"
        y="82.083008" />
     <rect
-       style="fill:#aa75ff;fill-opacity:1;stroke-width:0.107576"
+       style="fill:#75ff8c;fill-opacity:1;stroke-width:0.107576"
        id="rect2-3-1"
        width="38.970215"
        height="107.75845"
@@ -89,7 +100,7 @@
        y="171.56052"
        transform="rotate(-45)" />
     <rect
-       style="fill:#aa75ff;fill-opacity:1;stroke-width:0.126911"
+       style="fill:#75ff8c;fill-opacity:1;stroke-width:0.126911"
        id="rect2-3-3"
        width="38.970215"
        height="149.97615"
