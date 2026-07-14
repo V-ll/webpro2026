@@ -118,6 +118,17 @@
   <main class="main-area" id="mainArea">
     <% if (workspace && tasks && tasks.length > 0) { %>
     <script >selectTask(<%= tasks[0].id%>)</script>
+    <% } else { %>
+      <!-- 空状態 -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-state-icon">📋</div>
+        <h2>タスクがまだありません</h2>
+        <p>最初のタスクを作成して、<br>プロジェクトを始めましょう。</p>
+        <button class="empty-state-btn" onclick="openNewTaskModal()">＋ タスクを作成</button>
+        <% if (!workspace) { %>
+          <button class="empty-state-btn" style="background:var(--bg-3);margin-top:4px" onclick="initWorkspace()">ワークスペースを初期化</button>
+        <% } %>
+      </div>
     <% } %>
   </main>
 </div>
