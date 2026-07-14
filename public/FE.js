@@ -23,7 +23,7 @@ function zeroPadding(s) {
   return ('0' + s).slice(-2);
 }
 function getTaskDue(s) {
-  return new Date(s).toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(s).toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 // ===== Panel =====
 function togglePanel() {
