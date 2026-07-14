@@ -636,6 +636,13 @@ async function selectPriority(priority) {
       chip.textContent = priority;
       chip.style.backgroundColor = `var(--priority-${priority})`;
     }
+
+    // Update state & sidebar
+    const item = document.getElementById('task-item-' + STATE.currentTaskId);
+    if (item) {
+      for (let i = 0; i <= 5; i++)item.classList.remove('task-priority-' + i);
+      item.classList.add('task-priority-' + priority)
+    }
     closeAllPopups();
     showToast('優先度を更新しました', 'success');
   } catch { showToast('更新に失敗しました', 'error'); }
