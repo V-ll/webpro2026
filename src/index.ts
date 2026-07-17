@@ -303,6 +303,32 @@ app.post("/api/workspaces/:workspaceId/tasks", async (req, res) => {
   }
 });
 
+// ルート：API - タスク詳細取得（description を含む）
+app.get("/api/tasks/:taskId", async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    log(`GET /api/tasks/${taskId}`);
+
+    const task = await prisma.task.findUnique({
+      where: { id: parseInt(taskId) },
+      include: {
+        content: true,
+        milestones: true,
+        reminders: true,
+        createdBy: true
+      }
+    });
+    if (!task) {
+      res.status(404).json({ error: "タスクが見つかりません" });
+      return;
+    }
+    res.json(task);
+  } catch (error) {
+    log("GET /api/tasks/:taskId - Error", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : String(error) });
+  }
+});
+
 // ルート：API - タスク更新
 app.put("/api/tasks/:taskId", async (req, res) => {
   try {
@@ -316,12 +342,21 @@ app.put("/api/tasks/:taskId", async (req, res) => {
         ...(title && { title }),
         ...(status && { status }),
         ...(progress !== undefined && { progress: parseInt(progress) }),
-        ...(description !== undefined && { description }),
         ...(priority !== undefined && { priority: parseInt(priority) }),
         ...("dueDate" in req.body && { dueDate: dueDate ? new Date(dueDate) : null }),
       },
       include: { milestones: true, reminders: true }
     });
+
+    // description is stored in a separate table so heavy bodies are
+    // not loaded when listing tasks. Update it lazily when provided.
+    if (description !== undefined) {
+      await prisma.taskContent.upsert({
+        where: { taskId: task.id },
+        create: { taskId: task.id, description: description || null },
+        update: { description: description || null }
+      });
+    }
 
     res.json(task);
   } catch (error) {

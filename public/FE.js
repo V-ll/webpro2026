@@ -42,7 +42,9 @@ function selectTask(taskId) {
   if (STATE.currentTaskId != taskId) {// 一致しないときだけ移っているので変更する
     // タスク削除に関する遷移については考えなくて良い: 再読込されるらしいので
     const previousTask = STATE.tasks.find(t => t.id === STATE.currentTaskId);
-    if (previousTask) previousTask.description = document.getElementById('mdInput').value.trim();
+    if (previousTask && STATE.draftDescription !== undefined) {
+      previousTask.description = STATE.draftDescription;
+    }
   }
   // Update active item in sidebar
   document.querySelectorAll('.task-item').forEach(el => el.classList.remove('active'));
@@ -50,6 +52,25 @@ function selectTask(taskId) {
   if (item) item.classList.add('active');
   renderTaskEditor(task);
   STATE.currentTaskId = taskId;
+  // description is stored in a separate table, so load it lazily.
+  loadTaskDescription(taskId);
+}
+async function loadTaskDescription(taskId) {
+  try {
+    const resp = await fetch(`/api/tasks/${taskId}`);
+    if (!resp.ok) return;
+    const full = await resp.json();
+    const t = STATE.tasks.find(x => x.id === taskId);
+    if (t) t.description = full.content?.description || '';
+    const input = document.getElementById('mdInput');
+    if (input && STATE.currentTaskId === taskId) {
+      input.value = t?.description || '';
+      MDForceRender();
+    }
+    STATE.draftDescription = t?.description || '';
+  } catch (e) {
+    console.log('loadTaskDescription failed:' + e);
+  }
 }
 function renderTaskEditor(task) {
   const main = document.getElementById('mainArea');
@@ -261,6 +282,7 @@ function initMarkdownEditor() {
   if (!input || !preview) return;
   let saveTimer;
   input.addEventListener('input', () => {
+    STATE.draftDescription = input.value;
     MDForceRender();
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => { saveDescription(input.value); }, 1500);
