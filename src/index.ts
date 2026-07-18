@@ -23,6 +23,23 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter, log: ["query", "info", "warn", "error"] });
 
 const app = express();
+
+// Cookie からキャッシュされたタスクを取得（DB アクセス前の高速描画用）
+function readTaskCacheFromCookies(req: any, workspaceId: number): { tasks: any[]; lists: any[] } | null {
+  try {
+    const cookies = req.headers.cookie || "";
+    const prefix = `tm_tasks_${workspaceId}=`;
+    const match = cookies
+      .split("; ")
+      .find((row: string) => row.startsWith(prefix));
+    if (!match) return null;
+    const value = JSON.parse(decodeURIComponent(match.slice(prefix.length)));
+    if (!value || !Array.isArray(value.tasks)) return null;
+    return { tasks: value.tasks, lists: Array.isArray(value.lists) ? value.lists : [] };
+  } catch {
+    return null;
+  }
+}
 const PORT = process.env.PORT || 8888;
 const PRESET_REMINDER_TYPES = new Set(["30min", "1hour", "3hours", "12hours", "1day", "3days", "1week"]);
 
@@ -45,6 +62,16 @@ app.get("/", async (req, res) => {
     log("GET / - Loading dashboard");
 
     const requestedWorkspaceId = Number(req.query.workspaceId);
+
+    // DB アクセス前に Cookie のキャッシュを確認し、あれば即座に描画用データとして利用
+    let cachedTasks: any[] | null = null;
+    let cachedLists: any[] | null = null;
+    if (Number.isInteger(requestedWorkspaceId) && requestedWorkspaceId > 0) {
+      const cache = readTaskCacheFromCookies(req, requestedWorkspaceId);
+      if (cache && cache.tasks.length > 0) cachedTasks = cache.tasks;
+      if (cache && cache.lists && cache.lists.length > 0) cachedLists = cache.lists;
+    }
+
     const workspace = await prisma.workspace.findFirst({
       ...(Number.isInteger(requestedWorkspaceId) && requestedWorkspaceId > 0
         ? { where: { id: requestedWorkspaceId } }
@@ -74,10 +101,18 @@ app.get("/", async (req, res) => {
       return;
     }
 
+    // クライアント側キャッシュがあればそれを優先して高速描画（DB の内容は後で置き換えられる）
+    const lists = cachedTasks && cachedTasks.length > 0 && cachedLists && cachedLists.length > 0
+      ? cachedLists
+      : workspace.lists;
+    const tasks = cachedTasks && cachedTasks.length > 0
+      ? cachedTasks
+      : workspace.lists.flatMap(l => l.tasks);
+
     res.render("index", {
       workspace,
-      lists: workspace.lists,
-      tasks: workspace.lists.flatMap(l => l.tasks)
+      lists,
+      tasks
     });
   } catch (error) {
     log("GET / - Error occurred", error);

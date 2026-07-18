@@ -506,6 +506,14 @@ async function createTask() {
     togglePanel();//今開いているので、閉じる
     showToast('タスクを作成しました ✓', 'success');
     selectTask(task.id);
+    if (STATE.workspaceId) {
+      setCacheCookie('tm_tasks_' + STATE.workspaceId, {
+        tasks: STATE.tasks,
+        lists: STATE.lists,
+        currentTaskId: STATE.currentTaskId,
+        signature: tasksSignature(STATE.tasks)
+      });
+    }
   } catch (e) {
     showToast('作成に失敗: ' + e.message, 'error');
   } finally {
@@ -921,6 +929,15 @@ async function deleteCurrentTask() {
   try {
     const resp = await fetch(`/api/tasks/${task.id}`, { method: 'DELETE' });
     if (!resp.ok) throw new Error(await resp.text());
+    STATE.tasks = STATE.tasks.filter(t => t.id !== task.id);
+    if (STATE.workspaceId) {
+      setCacheCookie('tm_tasks_' + STATE.workspaceId, {
+        tasks: STATE.tasks,
+        lists: STATE.lists,
+        currentTaskId: STATE.currentTaskId,
+        signature: tasksSignature(STATE.tasks)
+      });
+    }
     window.location.reload();
   } catch (e) {
     if (btn) {
@@ -939,6 +956,113 @@ function showToast(msg, type = '') {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.className = 'toast'; }, 3000);
 }
+// ===== Cookie Cache =====
+function setCacheCookie(key, value) {
+  const maxAge = 60 * 60 * 24 * 7; // 7日間
+  document.cookie = `${key}=${encodeURIComponent(JSON.stringify(value))}; path=/; max-age=${maxAge}; samesite=lax`;
+}
+function getCacheCookie(key) {
+  const match = document.cookie
+    .split('; ')
+    .find(row => row.startsWith(key + '='));
+  if (!match) return null;
+  try {
+    return JSON.parse(decodeURIComponent(match.split('=').slice(1).join('=')));
+  } catch (e) {
+    return null;
+  }
+}
+function tasksSignature(tasks) {
+  // 簡易的な差分検知用シグネチャ
+  return tasks.map(t => `${t.id}:${t.title}:${t.status}:${t.priority}:${t.progress}:${t.dueDate || ''}:${t.reminders?.length ?? 0}`).join('|');
+}
+async function refreshFromCacheOrServer() {
+  if (!STATE.workspaceId) return;
+  const cached = getCacheCookie('tm_tasks_' + STATE.workspaceId);
+  // Cookie キャッシュで即座に描画
+  if (cached && cached.tasks && Array.isArray(cached.tasks)) {
+    applyTasks(cached.tasks, cached.currentTaskId, false, cached.lists);
+  }
+  // その後サーバーから最新データを取得して差し替え
+  try {
+    const resp = await fetch(`/api/workspaces/${STATE.workspaceId}/tasks`);
+    if (!resp.ok) return;
+    const serverTasks = await resp.json();
+    const prev = getCacheCookie('tm_tasks_' + STATE.workspaceId);
+    const prevSig = prev ? prev.signature : null;
+    const newSig = tasksSignature(serverTasks);
+    if (prevSig !== newSig) {
+      setCacheCookie('tm_tasks_' + STATE.workspaceId, {
+        tasks: serverTasks,
+        lists: STATE.lists,
+        currentTaskId: STATE.currentTaskId,
+        signature: newSig
+      });
+      applyTasks(serverTasks, STATE.currentTaskId, true, STATE.lists);
+      showToast('最新のタスク情報に更新しました', 'success');
+    }
+  } catch (e) {
+    console.log('refreshFromServer failed:' + e);
+  }
+}
+function applyTasks(tasks, currentTaskId, keepSelection, lists) {
+  STATE.tasks = tasks;
+  if (lists) STATE.lists = lists;
+  const activeId = (keepSelection && STATE.currentTaskId) || currentTaskId || (tasks.length ? tasks[0].id : null);
+  STATE.currentTaskId = activeId;
+  renderSidebar(tasks);
+  if (activeId) {
+    const task = tasks.find(t => t.id === activeId);
+    if (task) {
+      document.querySelectorAll('.task-item').forEach(el => el.classList.remove('active'));
+      const item = document.getElementById('task-item-' + activeId);
+      if (item) item.classList.add('active');
+      renderTaskEditor(task);
+      loadTaskDescription(activeId);
+    }
+  } else {
+    const main = document.getElementById('mainArea');
+    if (main && !main.querySelector('.task-editor')) {
+      main.innerHTML = `
+        <div class="empty-state" id="emptyState">
+          <div class="empty-state-icon">📋</div>
+          <h2>タスクがまだありません</h2>
+          <p>最初のタスクを作成して、<br>プロジェクトを始めましょう。</p>
+          <button class="empty-state-btn" onclick="openNewTaskModal()">＋ タスクを作成</button>
+        </div>`;
+    }
+  }
+}
+function renderSidebar(tasks) {
+  const body = document.getElementById('panelBody');
+  if (!body) return;
+  const lists = STATE.lists || [];
+  if (!lists.length) {
+    body.innerHTML = `<div class="panel-empty">タスクリストがありません。<br>初期化ボタンでセットアップできます。</div>`;
+    return;
+  }
+  body.innerHTML = lists.map(list => {
+    const listTasks = tasks.filter(t => t.listId === list.id);
+    const items = listTasks.length
+      ? listTasks.map(task => `
+        <div class="task-item task-priority-${task.priority}" id="task-item-${task.id}" onclick="selectTask(${task.id})">
+          <div class="task-item-title">${escHtml(task.title)}</div>
+          <div class="task-item-meta">
+            <span class="status-badge status-${task.status}">${escHtml(task.status)}</span>
+            ${task.dueDate ? `<span>${new Date(task.dueDate).toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })}</span>` : ''}
+          </div>
+        </div>`).join('')
+      : `<div style="padding:6px 14px 10px; font-size:12px; color:var(--text-2);">タスクなし</div>`;
+    return `
+      <div class="list-section" id="list-section-${list.id}">
+        <div class="list-label">
+          <span class="list-dot" style="background:${list.color || '#5b7cf7'}"></span>
+          ${escHtml(list.name)}
+        </div>
+        ${items}
+      </div>`;
+  }).join('');
+}
 // ===== Helpers =====
 function escHtml(str) {
   if (!str) return '';
@@ -950,9 +1074,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('pointerdown', () => { getReminderAudioContext(); }, { once: true });
   checkReminderSchedules();
   window.setInterval(checkReminderSchedules, 15000);
-  // 最初のタスクをアクティブに
-  if (STATE.currentTaskId) {
-    const item = document.getElementById('task-item-' + STATE.currentTaskId);
-    if (item) item.classList.add('active');
-  }
+  // Cookie キャッシュで即時描画し、その後サーバーから取得して差し替え
+  refreshFromCacheOrServer();
 });
